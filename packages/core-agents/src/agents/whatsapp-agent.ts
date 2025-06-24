@@ -38,7 +38,7 @@ export class WhatsAppAgent extends AbstractAgent {
   private activeTickets: Map<string, SupportTicket> = new Map();
   private messageTemplates: Map<string, string> = new Map();
   
-  constructor(id: string, name: string) {
+  constructor(id: string = 'whatsapp-agent-' + Date.now(), name: string = 'WhatsApp Agent') {
     super(id, name, 'whatsapp', [
       'send_message',
       'receive_message',
