@@ -1,25 +1,27 @@
 # API Contract Validation Report
 
-Generated: 2025-06-23T15:46:49.549Z
+Generated: 2025-06-24T19:03:04.565Z
 
 ## 📊 Summary
 
-- **Total Routers**: 9
-- **Total Endpoints**: 3
-- **Protected Endpoints**: 2
-- **Public Endpoints**: 1
+- **Total Routers**: 13
+- **Total Endpoints**: 1
+- **Protected Endpoints**: 1
+- **Public Endpoints**: 0
 
 ## 🛠️ Router Details
 
 
 ### Agent Router
 - **File**: `agent.ts`
-- **Procedures**: 1
+- **Procedures**: 0
 
 
-- **getAll** (query)
-  - Protection: 🌐 Public
-  - Input Validation: ✅ Yes
+
+### Brand-voice Router
+- **File**: `brand-voice.ts`
+- **Procedures**: 0
+
 
 
 ### Campaign Router
@@ -40,8 +42,20 @@ Generated: 2025-06-23T15:46:49.549Z
 
 
 
+### Index Router
+- **File**: `index.ts`
+- **Procedures**: 0
+
+
+
 ### Metrics Router
 - **File**: `metrics.ts`
+- **Procedures**: 0
+
+
+
+### Outreach Router
+- **File**: `outreach.ts`
 - **Procedures**: 0
 
 
@@ -64,16 +78,18 @@ Generated: 2025-06-23T15:46:49.549Z
 
 
 
+### Trends Router
+- **File**: `trends.ts`
+- **Procedures**: 0
+
+
+
 ### User Router
 - **File**: `user.ts`
-- **Procedures**: 2
+- **Procedures**: 1
 
 
-- **me** (query)
-  - Protection: 🔒 Protected
-  - Input Validation: ✅ Yes
-
-- **getStats** (query)
+- **getAll** (query)
   - Protection: 🔒 Protected
   - Input Validation: ✅ Yes
 
@@ -92,19 +108,27 @@ Generated: 2025-06-23T15:46:49.549Z
 
 - **agent**: ✅ Accessible
 
+- **brand-voice**: ✅ Accessible
+
 - **campaign**: ✅ Accessible
 
 - **content**: ✅ Accessible
 
 - **email**: ✅ Accessible
 
+- **index**: ✅ Accessible
+
 - **metrics**: ✅ Accessible
+
+- **outreach**: ✅ Accessible
 
 - **seo**: ✅ Accessible
 
 - **social**: ✅ Accessible
 
 - **support**: ✅ Accessible
+
+- **trends**: ✅ Accessible
 
 - **user**: ✅ Accessible
 

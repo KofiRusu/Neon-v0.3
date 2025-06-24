@@ -22,10 +22,10 @@ class UIRefinementScript {
     await this.runUIRefinement();
     
     // Watch for file changes
-    this.watchFiles();
+    await this.watchFiles();
   }
 
-  watchFiles() {
+  async watchFiles() {
     const watcher = chokidar.watch([
       'apps/dashboard/src/**/*.tsx',
       'apps/dashboard/src/**/*.ts',

@@ -598,5 +598,11 @@
     "level": "info",
     "message": "Starting workspace sync...",
     "device": "Kofis-MacBook-Air-local-darwin-arm64"
+  },
+  {
+    "timestamp": "2025-06-24T19:02:52.215Z",
+    "level": "info",
+    "message": "Conflict resolution check passed",
+    "device": "cursor-linux-x64"
   }
 ]

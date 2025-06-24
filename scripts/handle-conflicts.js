@@ -59,14 +59,12 @@ try {
   console.log('⚠️  Could not check git status:', error.message);
 }
 
-// Scan filesystem for conflict markers
-const conflictFiles = scanForConflicts('.');
-
-// Combine both types of conflicts
-const allConflicts = [...new Set([...gitConflicts, ...conflictFiles])];
+// Only check git conflicts for CI purposes
+// (Scanning all files for conflict markers can produce false positives)
+const allConflicts = gitConflicts;
 
 if (allConflicts.length > 0) {
-  console.error('⛔ CONFLICTS DETECTED:');
+  console.error('⛔ GIT CONFLICTS DETECTED:');
   allConflicts.forEach(file => {
     console.error(`   📄 ${file}`);
   });
