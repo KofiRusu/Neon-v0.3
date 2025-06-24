@@ -1,10 +1,162 @@
 import { jest } from '@jest/globals';
 
+// Mock Prisma client interface
+interface MockPrismaClient {
+  user: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  agent: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  agentExecution: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  campaign: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  content: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  analytics: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+    aggregate: jest.Mock;
+    groupBy: jest.Mock;
+  };
+  lead: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  trend: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  abTest: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  designTemplate: {
+    findUnique: jest.Mock;
+    findMany: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+    count: jest.Mock;
+  };
+  $transaction: jest.Mock;
+  $connect: jest.Mock;
+  $disconnect: jest.Mock;
+}
+
+interface MockSession {
+  user: MockUser;
+  expires: Date;
+}
+
+interface MockLogger {
+  info: jest.Mock;
+  error: jest.Mock;
+  warn: jest.Mock;
+  debug: jest.Mock;
+}
+
 // Mock context type based on expected tRPC context structure
 interface MockContext {
-  prisma: any;
-  session: any;
-  logger: any;
+  prisma: MockPrismaClient;
+  session: MockSession | null;
+  logger: MockLogger;
+}
+
+interface MockUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface MockAgent {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  capabilities: Record<string, unknown>;
+  settings: Record<string, unknown>;
+  version: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface MockCampaign {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: string;
+  budget: number;
+  startDate: Date;
+  endDate: Date;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface MockExecution {
+  id: string;
+  agentId: string;
+  campaignId: string;
+  userId: string;
+  task: string;
+  payload: Record<string, unknown>;
+  result: unknown;
+  status: string;
+  performance: unknown;
+  error: unknown;
+  startedAt: Date;
+  completedAt: Date | null;
+  metadata: Record<string, unknown>;
 }
 
 export function createTRPCMockContext(): MockContext {
@@ -95,7 +247,7 @@ export function createTRPCMockContext(): MockContext {
       $transaction: jest.fn(),
       $connect: jest.fn(),
       $disconnect: jest.fn(),
-    } as any,
+    },
     session: null,
     logger: {
       info: jest.fn(),
@@ -106,7 +258,7 @@ export function createTRPCMockContext(): MockContext {
   };
 }
 
-export function createMockUser() {
+export function createMockUser(): MockUser {
   return {
     id: 'user1',
     email: 'test@example.com',
@@ -117,14 +269,14 @@ export function createMockUser() {
   };
 }
 
-export function createMockSession(user = createMockUser()) {
+export function createMockSession(user = createMockUser()): MockSession {
   return {
     user,
     expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
   };
 }
 
-export function createMockAgent() {
+export function createMockAgent(): MockAgent {
   return {
     id: 'agent1',
     name: 'Test Agent',
@@ -138,7 +290,7 @@ export function createMockAgent() {
   };
 }
 
-export function createMockCampaign() {
+export function createMockCampaign(): MockCampaign {
   return {
     id: 'campaign1',
     name: 'Test Campaign',
@@ -154,7 +306,7 @@ export function createMockCampaign() {
   };
 }
 
-export function createMockExecution() {
+export function createMockExecution(): MockExecution {
   return {
     id: 'execution1',
     agentId: 'agent1',
