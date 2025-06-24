@@ -16,7 +16,8 @@
     "allowJs": true
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma/**/*"
   ],
   "exclude": [
     "dist",
@@ -25,8 +26,6 @@
     "**/*.spec.ts"
   ],
   "references": [
-    { "path": "../types" },
-    { "path": "../utils" },
-    { "path": "../data-model" }
+    { "path": "../types" }
   ]
 } 

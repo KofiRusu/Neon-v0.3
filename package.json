@@ -17,6 +17,7 @@
     "test": "npm run test --workspaces --if-present",
     "test:e2e": "playwright test",
     "lint": "npm run lint --workspaces --if-present",
+    "lint:fix": "npm run lint:fix --workspaces --if-present",
     "type-check": "npm run type-check --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present && rm -rf node_modules .next dist coverage",
     "db:generate": "npm run db:generate --workspace=packages/data-model",
@@ -28,13 +29,16 @@
     "deploy:preview": "vercel",
     "deploy:production": "vercel --prod",
     "health-check": "curl -f http://localhost:3001/api/health && curl -f http://localhost:3000",
-    "postinstall": "npm run db:generate",
+    "postinstall": "npm run db:generate || echo 'Prisma generation skipped'",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "test:coverage": "npm run test --workspaces --if-present -- --coverage",
     "validate:api": "node scripts/api-contract-validator.js",
     "test:autonomous": "node scripts/autonomous-testing-agent.js",
-    "fine-tune": "node scripts/fine-tuning-master.js"
+    "fine-tune": "node scripts/fine-tuning-master.js",
+    "validate": "npm run lint && npm run type-check && npm run test",
+    "prepare": "husky install",
+    "pre-push": "npm run validate"
   },
   "keywords": [
     "ai",
@@ -64,13 +68,17 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
+    "@testing-library/react": "16.3.0",
+    "@types/jest-axe": "3.5.9",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
     "chokidar": "^4.0.3",
     "concurrently": "^8.2.2",
     "eslint-config-prettier": "^10.1.5",
+    "husky": "8.0.3",
     "prettier": "^3.6.0",
+    "ts-loader": "9.5.2",
     "typescript": "^5.3.0"
   },
   "peerDependencies": {

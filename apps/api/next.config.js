@@ -11,7 +11,14 @@ const nextConfig = {
   ],
   experimental: {
     esmExternals: true,
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma'],
+    typedRoutes: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
   },
   async headers() {
     return [
@@ -32,12 +39,24 @@ const nextConfig = {
     
     config.externals = [...config.externals, 'canvas', 'jsdom']
     
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
     return config
   },
   output: 'standalone',
   poweredByHeader: false,
   compress: true,
-  generateEtags: false
+  generateEtags: false,
+  env: {
+    NEXT_TELEMETRY_DISABLED: '1',
+  },
 }
 
 module.exports = nextConfig

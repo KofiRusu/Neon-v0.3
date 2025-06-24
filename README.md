@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
+[![CI](https://github.com/KofiRusu/Neon-v0.3/actions/workflows/ci.yml/badge.svg)](https://github.com/KofiRusu/Neon-v0.3/actions)
+[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
 
 > **The most advanced AI-powered marketing automation platform built with modern web technologies**
 
