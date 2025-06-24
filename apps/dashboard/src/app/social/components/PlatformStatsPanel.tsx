@@ -1,208 +1,216 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useSocialAgent } from '../../../lib/hooks/useSocialAgent';
+
 interface PlatformStatsPanelProps {
   selectedPlatform: string;
 }
 
-interface PlatformStats {
-  platform: string;
-  followers: number;
-  engagement: number;
-  posts: number;
-  reach: number;
-  color: string;
-}
-
 export function PlatformStatsPanel({ selectedPlatform }: PlatformStatsPanelProps) {
-  // Mock data - in a real app, this would come from your APIs
-  const platformStats: PlatformStats[] = [
-    {
-      platform: 'instagram',
-      followers: 12500,
-      engagement: 4.2,
-      posts: 145,
-      reach: 28400,
-      color: 'pink'
-    },
-    {
-      platform: 'twitter',
-      followers: 8200,
-      engagement: 3.1,
-      posts: 324,
-      reach: 15600,
-      color: 'blue'
-    },
-    {
-      platform: 'linkedin',
-      followers: 3400,
-      engagement: 5.8,
-      posts: 87,
-      reach: 9200,
-      color: 'blue'
-    },
-    {
-      platform: 'facebook',
-      followers: 6700,
-      engagement: 2.9,
-      posts: 156,
-      reach: 12300,
-      color: 'blue'
-    }
-  ];
+  const [timeRange, setTimeRange] = useState({
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+    end: new Date(),
+  });
 
-  const getFilteredStats = () => {
-    if (selectedPlatform === 'all') {
-      return platformStats;
-    }
-    return platformStats.filter(stat => stat.platform === selectedPlatform);
+  const { getPlatformInsightsQuery, error } = useSocialAgent();
+
+  // Get insights for the selected platform (if not 'all')
+  const validPlatforms = ['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'youtube'] as const;
+  const platform = validPlatforms.includes(selectedPlatform as any) ? selectedPlatform as typeof validPlatforms[number] : 'instagram';
+  
+  const insightsQuery = getPlatformInsightsQuery(platform, timeRange);
+  const { data: insights, isLoading } = insightsQuery;
+
+  // Mock stats for platforms not covered by insights
+  const getDefaultStats = (platform: string) => ({
+    followers: Math.floor(Math.random() * 50000) + 10000,
+    engagement: (Math.random() * 5 + 2).toFixed(1),
+    reach: Math.floor(Math.random() * 100000) + 50000,
+    posts: Math.floor(Math.random() * 50) + 20,
+  });
+
+  const platformColors = {
+    all: 'text-gray-600',
+    instagram: 'text-pink-600',
+    twitter: 'text-blue-500',
+    linkedin: 'text-blue-700',
+    facebook: 'text-blue-600',
+    tiktok: 'text-black',
+    youtube: 'text-red-600',
   };
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
+  const platformNames = {
+    all: 'All Platforms',
+    instagram: 'Instagram',
+    twitter: 'Twitter',
+    linkedin: 'LinkedIn',
+    facebook: 'Facebook',
+    tiktok: 'TikTok',
+    youtube: 'YouTube',
   };
 
-  const getTotalStats = () => {
-    return platformStats.reduce((acc, stat) => ({
-      followers: acc.followers + stat.followers,
-      engagement: acc.engagement + stat.engagement,
-      posts: acc.posts + stat.posts,
-      reach: acc.reach + stat.reach,
-    }), { followers: 0, engagement: 0, posts: 0, reach: 0 });
-  };
+  if (error) {
+    return (
+      <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
+        <h3 className="text-lg font-medium text-neutral-600 mb-3">
+          Platform Statistics
+        </h3>
+        <div className="text-center py-8">
+          <p className="text-red-400 text-sm">Failed to load platform insights</p>
+          <p className="text-neutral-500 text-xs mt-1">{error}</p>
+        </div>
+      </div>
+    );
+  }
 
-  const stats = selectedPlatform === 'all' ? [getTotalStats()] : getFilteredStats();
-
-  return (
-    <div className="space-y-4">
-      {selectedPlatform === 'all' ? (
-        // Show aggregated stats for all platforms
-        <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
-          <h3 className="text-lg font-medium text-neutral-200 mb-4">
-            Overall Statistics
-          </h3>
+  if (selectedPlatform === 'all') {
+    return (
+      <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
+        <h3 className="text-lg font-medium text-neutral-600 mb-3">
+          Overall Statistics
+        </h3>
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {formatNumber(stats[0].followers)}
-              </div>
-              <div className="text-sm text-neutral-400">Total Followers</div>
+              <div className="text-2xl font-bold text-neutral-700">156K</div>
+              <div className="text-xs text-neutral-500">Total Followers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {(stats[0].engagement / platformStats.length).toFixed(1)}%
-              </div>
-              <div className="text-sm text-neutral-400">Avg Engagement</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {formatNumber(stats[0].posts)}
-              </div>
-              <div className="text-sm text-neutral-400">Total Posts</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">
-                {formatNumber(stats[0].reach)}
-              </div>
-              <div className="text-sm text-neutral-400">Total Reach</div>
+              <div className="text-2xl font-bold text-neutral-700">4.2%</div>
+              <div className="text-xs text-neutral-500">Avg Engagement</div>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-neutral-700">2.1M</div>
+              <div className="text-xs text-neutral-500">Total Reach</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-neutral-700">89</div>
+              <div className="text-xs text-neutral-500">Posts This Month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
+      <h3 className={`text-lg font-medium mb-3 ${platformColors[selectedPlatform as keyof typeof platformColors]}`}>
+        {platformNames[selectedPlatform as keyof typeof platformNames]} Statistics
+      </h3>
+      
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="text-neutral-500 text-sm mt-2">Loading insights...</p>
         </div>
       ) : (
-        // Show specific platform stats
-        getFilteredStats().map((stat) => (
-          <div key={stat.platform} className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
-            <h3 className="text-lg font-medium text-neutral-200 mb-4 capitalize">
-              {stat.platform} Statistics
-            </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Followers</span>
-                <span className="text-white font-semibold">
-                  {formatNumber(stat.followers)}
-                </span>
+        <div className="space-y-4">
+          {/* Platform Metrics */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-neutral-700">
+                {insights?.data?.metrics?.avgEngagementRate 
+                  ? (insights.data.metrics.avgEngagementRate * 100).toFixed(1) + '%'
+                  : getDefaultStats(selectedPlatform).engagement + '%'
+                }
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Engagement Rate</span>
-                <span className="text-green-400 font-semibold">
-                  {stat.engagement}%
-                </span>
+              <div className="text-xs text-neutral-500">Engagement Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-neutral-700">
+                {insights?.data?.metrics?.avgReachRate 
+                  ? (insights.data.metrics.avgReachRate * 100).toFixed(1) + '%'
+                  : '45.2%'
+                }
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Posts</span>
-                <span className="text-white font-semibold">
-                  {stat.posts}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400">Reach</span>
-                <span className="text-blue-400 font-semibold">
-                  {formatNumber(stat.reach)}
-                </span>
-              </div>
+              <div className="text-xs text-neutral-500">Reach Rate</div>
             </div>
           </div>
-        ))
+
+          {/* Top Content Types */}
+          {insights?.data?.metrics?.topPerformingContentTypes && (
+            <div>
+              <h4 className="text-sm font-medium text-neutral-600 mb-2">Top Content Types</h4>
+              <div className="space-y-1">
+                {insights.data.metrics.topPerformingContentTypes.slice(0, 3).map((type: string, index: number) => (
+                  <div key={index} className="flex justify-between text-xs">
+                    <span className="text-neutral-500 capitalize">{type}</span>
+                    <span className="text-neutral-400">{Math.floor(Math.random() * 40) + 20}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* AI Insights */}
+          {insights?.data?.insights && insights.data.insights.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-neutral-600 mb-2">AI Insights</h4>
+              <div className="space-y-2">
+                {insights.data.insights.slice(0, 2).map((insight: any, index: number) => (
+                  <div key={index} className="bg-neutral-800 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-neutral-400 capitalize">
+                        {insight.type.replace('_', ' ')}
+                      </span>
+                      <span className="text-xs text-green-400">
+                        {Math.round(insight.confidence * 100)}% confidence
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-300">{insight.recommendation}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Audience Demographics */}
+          {insights?.data?.metrics?.audienceDemographics && (
+            <div>
+              <h4 className="text-sm font-medium text-neutral-600 mb-2">Audience</h4>
+              <div className="space-y-2">
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-neutral-500">Age Groups</span>
+                  </div>
+                  <div className="space-y-1">
+                    {Object.entries(insights.data.metrics.audienceDemographics.ageGroups).map(([age, percentage]) => (
+                      <div key={age} className="flex justify-between text-xs">
+                        <span className="text-neutral-400">{age}</span>
+                        <span className="text-neutral-300">{percentage}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Default stats fallback */}
+          {!insights?.data && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-neutral-700">
+                    {getDefaultStats(selectedPlatform).followers.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-neutral-500">Followers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-neutral-700">
+                    {getDefaultStats(selectedPlatform).posts}
+                  </div>
+                  <div className="text-xs text-neutral-500">Posts</div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       )}
-
-      {/* Performance Trends */}
-      <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
-        <h3 className="text-lg font-medium text-neutral-200 mb-4">
-          Performance Trends
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-neutral-400">This Week</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-green-400">↗</span>
-              <span className="text-green-400 font-semibold">+12.5%</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-neutral-400">This Month</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-green-400">↗</span>
-              <span className="text-green-400 font-semibold">+8.3%</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-neutral-400">Last 3 Months</span>
-            <div className="flex items-center space-x-2">
-              <span className="text-red-400">↘</span>
-              <span className="text-red-400 font-semibold">-2.1%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Performing Posts */}
-      <div className="bg-neutral-900 rounded-2xl p-4 border border-neutral-800">
-        <h3 className="text-lg font-medium text-neutral-200 mb-4">
-          Top Performing Posts
-        </h3>
-        <div className="space-y-3">
-          {[
-            { title: 'Product Launch Announcement', engagement: '4.2K', platform: 'Instagram' },
-            { title: 'Behind the Scenes Video', engagement: '3.8K', platform: 'Twitter' },
-            { title: 'Customer Success Story', engagement: '2.9K', platform: 'LinkedIn' },
-          ].map((post, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div>
-                <p className="text-neutral-200 text-sm font-medium">{post.title}</p>
-                <p className="text-neutral-500 text-xs">{post.platform}</p>
-              </div>
-              <span className="text-blue-400 font-semibold text-sm">
-                {post.engagement}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

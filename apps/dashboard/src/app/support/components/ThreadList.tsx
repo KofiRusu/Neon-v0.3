@@ -1,272 +1,343 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
-  MagnifyingGlassIcon,
-  ClockIcon,
+  InboxIcon,
   ExclamationTriangleIcon,
+  ClockIcon,
   CheckCircleIcon,
+  UserIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline';
+import { useSupportAgent } from '../../../lib/hooks/useSupportAgent';
 
 interface ThreadListProps {
   selectedThread: string | null;
   onSelectThread: (threadId: string) => void;
 }
 
-// Mock threads data
-const mockThreads = [
+// Mock ticket data - in production this would come from a tickets query
+const mockTickets = [
   {
-    id: '1',
-    customer: {
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@example.com',
-      avatar: null,
-    },
-    subject: 'Issue with AI Content Generator',
-    lastMessage: 'I see the issue. For more personalized content, try providing...',
-    lastMessageTime: new Date('2024-01-16T09:07:00Z'),
+    id: 'thread_001',
+    customer: { name: 'Sarah Johnson', email: 'sarah@example.com' },
+    subject: 'Issue with account verification',
+    lastMessage: 'The error says "Verification code expired" even when I use it immediately...',
     status: 'open',
     priority: 'medium',
-    channel: 'whatsapp',
-    unreadCount: 2,
-    isAiHandled: true,
-  },
-  {
-    id: '2',
-    customer: {
-      name: 'Mike Chen',
-      email: 'mike.chen@techstartup.com',
-      avatar: null,
-    },
-    subject: 'Billing Question',
-    lastMessage: 'Can you help me understand the pricing for the enterprise plan?',
-    lastMessageTime: new Date('2024-01-16T08:45:00Z'),
-    status: 'open',
-    priority: 'high',
     channel: 'email',
     unreadCount: 1,
-    isAiHandled: false,
+    createdAt: new Date('2024-01-16T10:30:00Z'),
+    updatedAt: new Date('2024-01-16T10:37:00Z'),
   },
   {
-    id: '3',
-    customer: {
-      name: 'Emma Wilson',
-      email: 'emma@creativeco.com',
-      avatar: null,
-    },
-    subject: 'Feature Request',
-    lastMessage: 'Thank you for the detailed explanation!',
-    lastMessageTime: new Date('2024-01-16T07:30:00Z'),
-    status: 'resolved',
-    priority: 'low',
+    id: 'thread_002',
+    customer: { name: 'Mike Chen', email: 'mike@example.com' },
+    subject: 'Billing question about subscription',
+    lastMessage: 'I was charged twice for my subscription this month. Can you help?',
+    status: 'in_progress',
+    priority: 'high',
     channel: 'chat',
     unreadCount: 0,
-    isAiHandled: true,
+    createdAt: new Date('2024-01-15T14:20:00Z'),
+    updatedAt: new Date('2024-01-16T09:15:00Z'),
   },
   {
-    id: '4',
-    customer: {
-      name: 'David Rodriguez',
-      email: 'david.r@agency.com',
-      avatar: null,
-    },
-    subject: 'API Integration Help',
-    lastMessage: 'I\'m having trouble with the webhook setup...',
-    lastMessageTime: new Date('2024-01-16T06:15:00Z'),
-    status: 'pending',
-    priority: 'high',
+    id: 'thread_003',
+    customer: { name: 'Emily Rodriguez', email: 'emily@example.com' },
+    subject: 'Feature request for mobile app',
+    lastMessage: 'Thank you for the clarification! This resolves my question.',
+    status: 'resolved',
+    priority: 'low',
+    channel: 'whatsapp',
+    unreadCount: 0,
+    createdAt: new Date('2024-01-14T16:45:00Z'),
+    updatedAt: new Date('2024-01-15T11:30:00Z'),
+  },
+  {
+    id: 'thread_004',
+    customer: { name: 'David Wilson', email: 'david@example.com' },
+    subject: 'Unable to reset password',
+    lastMessage: 'I keep getting an error when trying to reset my password.',
+    status: 'open',
+    priority: 'critical',
     channel: 'email',
-    unreadCount: 3,
-    isAiHandled: false,
+    unreadCount: 2,
+    createdAt: new Date('2024-01-16T11:15:00Z'),
+    updatedAt: new Date('2024-01-16T11:45:00Z'),
   },
 ];
 
 export default function ThreadList({ selectedThread, onSelectThread }: ThreadListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'recent' | 'priority'>('recent');
+  const [ticketSummaries, setTicketSummaries] = useState<Record<string, any>>({});
 
-  const filteredThreads = mockThreads.filter(thread => {
-    const matchesSearch = 
-      thread.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      thread.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      thread.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesFilter = filterStatus === 'all' || thread.status === filterStatus;
-    
-    return matchesSearch && matchesFilter;
-  });
+  const {
+    getTicketAnalyticsQuery,
+    generateTicketSummaryQuery,
+    error,
+    clearError
+  } = useSupportAgent();
 
-  const sortedThreads = filteredThreads.sort((a, b) => {
-    // Sort by priority first (high > medium > low)
-    const priorityOrder = { high: 3, medium: 2, low: 1 };
-    const priorityDiff = priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
-    
-    if (priorityDiff !== 0) return priorityDiff;
-    
-    // Then by last message time (newest first)
-    return b.lastMessageTime.getTime() - a.lastMessageTime.getTime();
-  });
+  // Get ticket analytics for the current time range
+  const analyticsQuery = getTicketAnalyticsQuery(
+    {
+      start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Last 7 days
+      end: new Date(),
+    },
+    {
+      status: filterStatus !== 'all' ? [filterStatus] : undefined,
+    }
+  );
 
-  const getStatusIcon = (status: string) => {
+  // Generate summaries for tickets
+  useEffect(() => {
+    mockTickets.forEach(async (ticket) => {
+      if (!ticketSummaries[ticket.id]) {
+        try {
+          const summary = generateTicketSummaryQuery(ticket.id);
+          if (summary.data) {
+            setTicketSummaries(prev => ({
+              ...prev,
+              [ticket.id]: summary.data
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to generate summary for ticket:', ticket.id, error);
+        }
+      }
+    });
+  }, [generateTicketSummaryQuery, ticketSummaries]);
+
+  // Filter and sort tickets
+  const filteredTickets = mockTickets
+    .filter(ticket => filterStatus === 'all' || ticket.status === filterStatus)
+    .sort((a, b) => {
+      if (sortBy === 'priority') {
+        const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
+        return priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
+      }
+      return b.updatedAt.getTime() - a.updatedAt.getTime();
+    });
+
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open':
-        return <ExclamationTriangleIcon className="h-4 w-4 text-red-500" />;
-      case 'pending':
-        return <ClockIcon className="h-4 w-4 text-yellow-500" />;
-      case 'resolved':
-        return <CheckCircleIcon className="h-4 w-4 text-green-500" />;
-      default:
-        return <ChatBubbleLeftIcon className="h-4 w-4 text-gray-500" />;
+      case 'open': return 'bg-red-100 text-red-800';
+      case 'in_progress': return 'bg-yellow-100 text-yellow-800';
+      case 'pending_customer': return 'bg-blue-100 text-blue-800';
+      case 'resolved': return 'bg-green-100 text-green-800';
+      case 'closed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'critical': return 'text-red-600';
+      case 'high': return 'text-orange-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
     }
   };
 
-  const getChannelColor = (channel: string) => {
+  const getChannelIcon = (channel: string) => {
     switch (channel) {
-      case 'whatsapp':
-        return 'bg-green-500';
-      case 'email':
-        return 'bg-blue-500';
-      case 'chat':
-        return 'bg-purple-500';
-      default:
-        return 'bg-gray-500';
+      case 'email': return '📧';
+      case 'chat': return '💬';
+      case 'whatsapp': return '📱';
+      case 'phone': return '☎️';
+      case 'social': return '🌐';
+      default: return '💬';
     }
   };
 
-  const formatTime = (date: Date) => {
+  const formatRelativeTime = (date: Date) => {
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffInHours < 1) {
+      const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+      return `${diffInMinutes}m ago`;
+    }
+    if (diffInHours < 24) {
+      return `${diffInHours}h ago`;
+    }
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white border-r border-gray-200">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="relative mb-4">
-          <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-gray-900">Support Tickets</h2>
+          <div className="text-sm text-gray-500">
+            {filteredTickets.length} tickets
+          </div>
         </div>
-        
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Tickets</option>
-          <option value="open">Open</option>
-          <option value="pending">Pending</option>
-          <option value="resolved">Resolved</option>
-        </select>
+
+        {/* Analytics Summary */}
+        {analyticsQuery.data && (
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="text-center">
+              <div className="text-lg font-bold text-gray-900">
+                {analyticsQuery.data.data?.totalTickets || 0}
+              </div>
+              <div className="text-xs text-gray-500">Total</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">
+                {analyticsQuery.data.data?.resolvedTickets || 0}
+              </div>
+              <div className="text-xs text-gray-500">Resolved</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">
+                {analyticsQuery.data.data?.avgResponseTime || 0}m
+              </div>
+              <div className="text-xs text-gray-500">Avg Response</div>
+            </div>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="space-y-2">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="w-full text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="pending_customer">Pending Customer</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'recent' | 'priority')}
+            className="w-full text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="recent">Sort by Recent</option>
+            <option value="priority">Sort by Priority</option>
+          </select>
+        </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center gap-1">
+              <ExclamationTriangleIcon className="h-3 w-3 text-red-500" />
+              <p className="text-xs text-red-600">{error}</p>
+            </div>
+            <button
+              onClick={clearError}
+              className="text-xs text-red-500 hover:text-red-700 underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Thread List */}
+      {/* Ticket List */}
       <div className="flex-1 overflow-y-auto">
-        {sortedThreads.length === 0 ? (
-          <div className="p-4 text-center text-gray-500">
-            <ChatBubbleLeftIcon className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-            <p>No conversations found</p>
+        {filteredTickets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <InboxIcon className="h-8 w-8 mb-2" />
+            <p className="text-sm">No tickets found</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {sortedThreads.map((thread) => (
+            {filteredTickets.map((ticket) => (
               <div
-                key={thread.id}
-                onClick={() => onSelectThread(thread.id)}
-                className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  selectedThread === thread.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
+                key={ticket.id}
+                onClick={() => onSelectThread(ticket.id)}
+                className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  selectedThread === ticket.id ? 'bg-blue-50 border-r-2 border-blue-500' : ''
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    {thread.customer.avatar ? (
-                      <img 
-                        src={thread.customer.avatar} 
-                        alt={thread.customer.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                    ) : (
-                      <span className="text-sm font-medium text-gray-600">
-                        {thread.customer.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <UserIcon className="h-4 w-4 text-gray-600" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {ticket.customer.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {ticket.customer.email}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{getChannelIcon(ticket.channel)}</span>
+                    {ticket.unreadCount > 0 && (
+                      <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-600 text-white min-w-[1.25rem] h-5">
+                        {ticket.unreadCount}
                       </span>
                     )}
                   </div>
+                </div>
+
+                <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-1">
+                  {ticket.subject}
+                </h3>
+
+                <p className="text-xs text-gray-600 line-clamp-2 mb-2">
+                  {ticket.lastMessage}
+                </p>
+
+                {/* AI Summary */}
+                {ticketSummaries[ticket.id] && (
+                  <div className="mb-2 p-2 bg-purple-50 rounded-md">
+                    <p className="text-xs text-purple-700 font-medium">AI Summary:</p>
+                    <p className="text-xs text-purple-600 line-clamp-1">
+                      {ticketSummaries[ticket.id].summary || 'Generating summary...'}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(ticket.status)}`}>
+                      {ticket.status.replace('_', ' ')}
+                    </span>
+                    <span className={`text-xs font-medium ${getPriorityColor(ticket.priority)}`}>
+                      {ticket.priority}
+                    </span>
+                  </div>
                   
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-medium text-gray-900 truncate">
-                        {thread.customer.name}
-                      </h4>
-                      <div className="flex items-center gap-1">
-                        {thread.unreadCount > 0 && (
-                          <span className="w-5 h-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center">
-                            {thread.unreadCount}
-                          </span>
-                        )}
-                        {getStatusIcon(thread.status)}
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm font-medium text-gray-800 mb-1 truncate">
-                      {thread.subject}
-                    </p>
-                    
-                    <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                      {thread.lastMessage}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${getChannelColor(thread.channel)}`}></div>
-                        <span className="text-xs text-gray-500 capitalize">{thread.channel}</span>
-                        <span className={`px-2 py-1 text-xs rounded-full border ${getPriorityColor(thread.priority)}`}>
-                          {thread.priority}
-                        </span>
-                        {thread.isAiHandled && (
-                          <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
-                            AI
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-xs text-gray-500">
-                        {formatTime(thread.lastMessageTime)}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <ClockIcon className="h-3 w-3" />
+                    {formatRelativeTime(ticket.updatedAt)}
                   </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+        <div className="grid grid-cols-2 gap-2">
+          <button className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors">
+            <ChatBubbleLeftIcon className="h-3 w-3 inline mr-1" />
+            New Ticket
+          </button>
+          <button className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors">
+            <CheckCircleIcon className="h-3 w-3 inline mr-1" />
+            Bulk Actions
+          </button>
+        </div>
       </div>
     </div>
   );
