@@ -10,7 +10,7 @@ export const contentRouter = createTRPCRouter({
       audience: z.string(),
       tone: z.enum(['professional', 'casual', 'friendly', 'authoritative', 'playful']),
       keywords: z.array(z.string()).optional(),
-      platform: z.string().optional()
+      platform: z.enum(['facebook', 'instagram', 'twitter', 'linkedin', 'email']).optional()
     }))
     .mutation(async ({ input }) => {
       const contentAgent = new ContentAgent();

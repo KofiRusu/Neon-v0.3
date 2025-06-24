@@ -24,7 +24,7 @@ export const appRouter = createTRPCRouter({
   email: emailRouter,
   social: socialRouter,
   support: supportRouter,
-});
+}) as any;
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

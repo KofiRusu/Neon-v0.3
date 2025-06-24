@@ -41,4 +41,24 @@ export const seoRouter = createTRPCRouter({
       const seoAgent = new SEOAgent();
       return await seoAgent.generateMetaTags(input);
     }),
+
+  analyzeKeywords: publicProcedure
+    .input(z.object({
+      content: z.string(),
+      keywords: z.array(z.string()),
+    }))
+    .mutation(async ({ input }) => {
+      const seoAgent = new SEOAgent();
+      return await seoAgent.analyzeContent(input.content, input.keywords);
+    }),
+
+  auditTechnicalSEO: publicProcedure
+    .input(z.object({
+      content: z.string(),
+      contentType: z.enum(['html', 'markdown']).default('markdown'),
+    }))
+    .mutation(async ({ input }) => {
+      const seoAgent = new SEOAgent();
+      return await seoAgent.auditTechnicalSEO(input.content, input.contentType);
+    }),
 }); 
