@@ -28,7 +28,13 @@
     "deploy:preview": "vercel",
     "deploy:production": "vercel --prod",
     "health-check": "curl -f http://localhost:3001/api/health && curl -f http://localhost:3000",
-    "postinstall": "npm run db:generate"
+    "postinstall": "npm run db:generate",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "test:coverage": "npm run test --workspaces --if-present -- --coverage",
+    "validate:api": "node scripts/api-contract-validator.js",
+    "test:autonomous": "node scripts/autonomous-testing-agent.js",
+    "fine-tune": "node scripts/fine-tuning-master.js"
   },
   "keywords": [
     "ai",

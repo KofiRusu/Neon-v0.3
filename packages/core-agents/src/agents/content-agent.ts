@@ -1,5 +1,7 @@
 import { AbstractAgent } from '../base-agent';
 import type { AgentResult, AgentPayload } from '../base-agent';
+import { logger } from '@neon/utils';
+import OpenAI from 'openai';
 
 export interface ContentGenerationContext {
   type: 'blog' | 'social_post' | 'email' | 'caption' | 'copy';

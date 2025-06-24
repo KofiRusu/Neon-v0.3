@@ -10,7 +10,8 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@neon/types": "*"
+    "@neon/types": "*",
+    "@neon/data-model": "*"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

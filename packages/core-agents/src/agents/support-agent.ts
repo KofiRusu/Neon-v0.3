@@ -129,7 +129,7 @@ export interface EscalationOutput {
   escalationLevel: 'supervisor' | 'specialist' | 'manager' | 'senior_management';
   reason: string;
   urgency: 'low' | 'medium' | 'high' | 'critical';
-  suggestedAgent?: {
+  suggestedAgent: {
     id: string;
     name: string;
     skills: string[];
@@ -419,7 +419,7 @@ export class CustomerSupportAgent extends AbstractAgent {
    * Determine escalation requirements
    */
   async escalate(input: EscalationInput): Promise<EscalationOutput> {
-    const { message, ticketId, classification, sentiment, reason, customerTier, agentWorkload } = input;
+    const { message, classification, sentiment, reason, customerTier, agentWorkload } = input;
     
     // Determine escalation based on multiple factors
     const shouldEscalate = this.shouldEscalateTicket(classification, sentiment, customerTier, agentWorkload);
@@ -747,7 +747,7 @@ Consider:
     return 'Standard escalation protocol';
   }
 
-  private findBestAgent(classification?: MessageClassificationOutput, level?: string) {
+  private findBestAgent(_classification?: MessageClassificationOutput, _level?: string) {
     // Mock agent assignment logic
     const agents = [
       { id: 'agent_001', name: 'Sarah Johnson', skills: ['technical', 'billing'], availability: true },
@@ -856,7 +856,6 @@ Consider:
       status: 'open',
       priority: input.priority || 'medium',
       category: input.category,
-      assignedTo: undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
       tags: [],

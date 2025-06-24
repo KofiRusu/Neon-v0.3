@@ -84,6 +84,8 @@ model Campaign {
   agentExecutions AgentExecution[]
   analytics       Analytics[]
   campaignMetrics CampaignMetric[]
+  b2bLeads        B2BLead[]
+  outreachHistory OutreachHistory[]
   user            User             @relation(fields: [userId], references: [id])
 
   @@map("campaigns")
