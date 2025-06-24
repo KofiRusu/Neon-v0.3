@@ -86,7 +86,44 @@ export interface TrendResult {
     keyword: string;
     volume: number;
     growth: number;
+    [key: string]: any; // Allow additional properties for enhanced trend data
   }>;
+  // Optional enhanced properties for Phase 4 capabilities
+  analysis?: {
+    totalKeywords: number;
+    crossPlatformInsights: string[];
+    recommendations: string[];
+  };
+  predictions?: {
+    highPotentialContent: any[];
+    platformRecommendations: Record<string, string[]>;
+    timingInsights: Record<string, string>;
+  };
+  hashtagInsights?: {
+    trendingHashtags: any[];
+    declineHashtags: any[];
+    platformLeaders: Record<string, string>;
+  };
+  competitorAnalysis?: {
+    marketLeaders: any[];
+    emergingCompetitors: any[];
+    strategies: string[];
+  };
+  seasonalInsights?: {
+    peakSeasons: string[];
+    cyclePatterns: Record<string, string>;
+    forecastedPeaks: Record<string, string>;
+  };
+  aggregationInsights?: {
+    dominantPlatforms: string[];
+    crossPlatformCorrelations: Record<string, number>;
+    unifiedStrategy: string[];
+  };
+  audienceInsights?: {
+    primaryAgeGroup: string;
+    topLocations: string[];
+    engagementPatterns: string;
+  };
 }
 
 // Additional types for base-agent compatibility

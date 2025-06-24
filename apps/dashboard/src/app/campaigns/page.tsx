@@ -138,8 +138,9 @@ export default function CampaignsPage(): JSX.Element {
         ];
 
         setFilteredCampaigns(mockCampaigns);
-      } catch (_error) {
+      } catch (error) {
         // Error handling - could be logged to external service or shown to user
+        console.error('Failed to fetch campaigns:', error);
         setFilteredCampaigns([]);
       }
     };
@@ -215,8 +216,9 @@ export default function CampaignsPage(): JSX.Element {
             : campaign
         )
       );
-    } catch (_error) {
+    } catch (error) {
       // Error handling - could show error toast or notification
+      console.error('Failed to update campaign status:', error);
       // For now, silently fail and keep existing state
     }
   };

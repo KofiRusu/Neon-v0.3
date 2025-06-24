@@ -44,8 +44,9 @@ export default function EmailComposer({ onClose }: EmailComposerProps): JSX.Elem
       // Handle success
       onClose();
     },
-    onError: (_error) => {
+    onError: (error: any) => {
       // Error handling - could show error toast or notification to user
+      console.error('Failed to send campaign:', error);
       // For now, the error is handled by the mutation's error state
     },
   });

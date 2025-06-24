@@ -78,8 +78,9 @@ export default function AnalyticsPage(): JSX.Element {
           ],
           timeSeriesData: generateTimeSeriesData(timeRange),
         });
-      } catch (_error) {
+      } catch (error) {
         // Error handling - could be logged to external service
+        console.error('Failed to fetch analytics:', error);
         setMetrics(prev => ({ ...prev })); // Keep existing state on error
       } finally {
         setIsLoading(false);
@@ -211,10 +212,14 @@ export default function AnalyticsPage(): JSX.Element {
             <h3 className="text-xl font-semibold text-white mb-4">Agent Performance</h3>
             <div className="space-y-4">
               {metrics.agentPerformance.map((agent, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <a
+                  key={index}
+                  href={`/analytics/agents/${agent.name.toLowerCase().replace(' ', '-')}`}
+                  className="flex items-center justify-between p-3 hover:bg-white/10 rounded-lg transition-all cursor-pointer group"
+                >
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
-                    <span className="text-white font-medium">{agent.name}</span>
+                    <span className="text-white font-medium group-hover:text-purple-200">{agent.name}</span>
                   </div>
                   <div className="flex items-center space-x-4">
                     <div className="w-24 bg-white/20 rounded-full h-2">
@@ -232,8 +237,9 @@ export default function AnalyticsPage(): JSX.Element {
                       {agent.trend >= 0 ? '+' : ''}
                       {agent.trend}%
                     </span>
+                    <span className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>

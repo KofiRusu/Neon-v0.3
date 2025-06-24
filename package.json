@@ -1,6 +1,6 @@
 {
   "name": "@neonhub/platform",
-  "version": "0.3.0",
+  "version": "1.0.0-beta",
   "description": "AI-powered marketing automation platform with comprehensive agent-based architecture",
   "main": "index.js",
   "private": true,
