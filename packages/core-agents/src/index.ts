@@ -19,6 +19,8 @@ export * from './agents/content-agent';
 export * from './agents/seo-agent';
 export * from './agents/email-agent';
 export * from './agents/social-agent';
+export * from './agents/twitter-agent';
+export * from './agents/linkedin-agent';
 export * from './agents/whatsapp-agent';
 export * from './agents/ad-agent';
 export * from './agents/outreach-agent';
