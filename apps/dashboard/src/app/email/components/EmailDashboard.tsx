@@ -11,6 +11,7 @@ import {
   UserGroupIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
+import { api } from '../../../utils/trpc';
 
 interface EmailDashboardProps {
   showCampaigns?: boolean;
@@ -19,14 +20,24 @@ interface EmailDashboardProps {
 export default function EmailDashboard({ showCampaigns = false }: EmailDashboardProps) {
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
 
-  // Mock data - in real app, this would come from tRPC
+  // Get email analytics data
+  const { data: emailAnalytics, isLoading: analyticsLoading } = api.email.getAnalytics.useQuery(
+    { campaignId: 'all' }
+  );
+
+  // Get email templates
+  const { data: emailTemplates } = api.email.getEmailTemplates.useQuery();
+
+  // Real-time stats from tRPC
   const stats = {
-    totalCampaigns: 24,
-    totalSent: 45620,
-    avgOpenRate: 28.5,
-    avgClickRate: 4.2,
+    totalCampaigns: emailAnalytics?.totalCampaigns || 0,
+    totalSent: emailAnalytics?.totalSent || 0,
+    avgOpenRate: emailAnalytics?.avgOpenRate || 0,
+    avgClickRate: emailAnalytics?.avgClickRate || 0,
   };
 
+  // Mock campaigns data until we have a campaigns endpoint
+  // TODO: Replace with api.email.getCampaigns.useQuery() when available
   const campaigns = [
     {
       id: '1',
@@ -81,6 +92,17 @@ export default function EmailDashboard({ showCampaigns = false }: EmailDashboard
       minute: '2-digit'
     });
   };
+
+  if (analyticsLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading email analytics...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showCampaigns) {
     return (
@@ -205,7 +227,7 @@ export default function EmailDashboard({ showCampaigns = false }: EmailDashboard
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Open Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.avgOpenRate}%</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.avgOpenRate.toFixed(1)}%</p>
               </div>
               <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <EyeIcon className="h-6 w-6 text-yellow-600" />
@@ -217,7 +239,7 @@ export default function EmailDashboard({ showCampaigns = false }: EmailDashboard
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Click Rate</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.avgClickRate}%</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.avgClickRate.toFixed(1)}%</p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                 <CursorArrowRaysIcon className="h-6 w-6 text-purple-600" />

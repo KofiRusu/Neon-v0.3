@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   PaperAirplaneIcon,
   FaceSmileIcon,
@@ -10,71 +10,122 @@ import {
   CpuChipIcon
 } from '@heroicons/react/24/outline';
 import EscalationBanner from './EscalationBanner';
-import { trpc } from '../../../lib/trpc';
+import { api } from '../../../utils/trpc';
 
 interface SupportInboxProps {
   selectedThread: string | null;
 }
 
-// Mock conversation data
-const mockConversation = {
-  id: '1',
+interface Message {
+  id: string;
+  sender: 'customer' | 'ai' | 'agent';
+  content: string;
+  timestamp: Date;
+  type: 'text' | 'image' | 'file';
+}
+
+interface Conversation {
+  id: string;
   customer: {
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@example.com',
-    phone: '+1-555-0123',
-    avatar: null,
-  },
-  subject: 'Issue with AI Content Generator',
-  status: 'open',
-  priority: 'medium',
-  channel: 'whatsapp',
-  escalated: false,
-  createdAt: new Date('2024-01-16T09:00:00Z'),
-  messages: [
-    {
-      id: '1',
-      sender: 'customer',
-      content: 'Hi, I\'m having trouble with the AI content generator. It keeps giving me generic responses.',
-      timestamp: new Date('2024-01-16T09:00:00Z'),
-      type: 'text',
-    },
-    {
-      id: '2',
-      sender: 'ai',
-      content: 'Hello Sarah! I understand you\'re experiencing issues with the AI content generator. Let me help you troubleshoot this. Can you tell me what type of content you\'re trying to generate?',
-      timestamp: new Date('2024-01-16T09:02:00Z'),
-      type: 'text',
-    },
-    {
-      id: '3',
-      sender: 'customer',
-      content: 'I\'m trying to create social media posts for my restaurant, but the suggestions are too generic and don\'t capture my brand voice.',
-      timestamp: new Date('2024-01-16T09:05:00Z'),
-      type: 'text',
-    },
-    {
-      id: '4',
-      sender: 'ai',
-      content: 'I see the issue. For more personalized content, try providing more specific details about your restaurant\'s style, target audience, and unique selling points in the prompt. Would you like me to guide you through creating a better prompt template?',
-      timestamp: new Date('2024-01-16T09:07:00Z'),
-      type: 'text',
-    },
-  ],
-};
+    name: string;
+    email: string;
+    phone?: string;
+    avatar?: string | null;
+  };
+  subject: string;
+  status: 'open' | 'in_progress' | 'pending_customer' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  channel: 'whatsapp' | 'email' | 'chat' | 'phone' | 'social';
+  escalated: boolean;
+  createdAt: Date;
+  messages: Message[];
+}
 
 export default function SupportInbox({ selectedThread }: SupportInboxProps) {
   const [newMessage, setNewMessage] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
 
-  const sendMessageMutation = trpc.support.sendMessage.useMutation({
-    onSuccess: () => {
+  // Get conversation details
+  const { data: conversationData, isLoading } = api.support.getTicket.useQuery(
+    { ticketId: selectedThread! },
+    { enabled: !!selectedThread }
+  );
+
+  // Send message mutation
+  const sendMessageMutation = api.support.sendMessage.useMutation({
+    onSuccess: (response) => {
       setNewMessage('');
+      // Add the sent message to the conversation
+      if (conversation) {
+        const newUserMessage: Message = {
+          id: Date.now().toString(),
+          sender: 'agent',
+          content: newMessage,
+          timestamp: new Date(),
+          type: 'text'
+        };
+        setConversation({
+          ...conversation,
+          messages: [...conversation.messages, newUserMessage]
+        });
+
+        // If there's an AI response, add it too
+        if (response.aiResponse) {
+          const aiMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            sender: 'ai',
+            content: response.aiResponse,
+            timestamp: new Date(),
+            type: 'text'
+          };
+          setTimeout(() => {
+            setConversation(prev => prev ? {
+              ...prev,
+              messages: [...prev.messages, aiMessage]
+            } : null);
+          }, 1000);
+        }
+      }
     },
     onError: (error) => {
       console.error('Failed to send message:', error);
     },
   });
+
+  // Auto-response generation
+  const generateAutoResponse = api.support.generateAutoResponse.useMutation();
+
+  // Update ticket status
+  const updateTicketMutation = api.support.updateTicket.useMutation({
+    onSuccess: () => {
+      // Refresh conversation data
+      if (conversation) {
+        setConversation({
+          ...conversation,
+          status: 'resolved'
+        });
+      }
+    }
+  });
+
+  // Update conversation when data changes
+  useEffect(() => {
+    if (conversationData?.ticket) {
+      const ticket = conversationData.ticket;
+      setConversation({
+        id: ticket.id,
+        customer: ticket.customer,
+        subject: ticket.subject,
+        status: ticket.status,
+        priority: ticket.priority,
+        channel: ticket.channel,
+        escalated: ticket.escalated || false,
+        createdAt: new Date(ticket.createdAt),
+        messages: ticket.messages || []
+      });
+    }
+  }, [conversationData]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,9 +136,44 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
         ticketId: selectedThread,
         content: newMessage,
         type: 'text',
+        senderId: 'current-agent', // Would be dynamic in real app
       });
     } catch (error) {
       console.error('Send failed:', error);
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!selectedThread) return;
+    
+    try {
+      await updateTicketMutation.mutateAsync({
+        ticketId: selectedThread,
+        update: {
+          status: newStatus as any,
+        },
+        agentId: 'current-agent'
+      });
+    } catch (error) {
+      console.error('Status update failed:', error);
+    }
+  };
+
+  const handleAutoResponse = async () => {
+    if (!conversation || !selectedThread) return;
+
+    try {
+      const response = await generateAutoResponse.mutateAsync({
+        message: conversation.messages[conversation.messages.length - 1]?.content || '',
+        customer: conversation.customer,
+        ticketHistory: conversation.messages
+      });
+
+      if (response.suggestion) {
+        setNewMessage(response.suggestion);
+      }
+    } catch (error) {
+      console.error('Auto-response generation failed:', error);
     }
   };
 
@@ -97,6 +183,17 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
       minute: '2-digit' 
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading conversation...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedThread) {
     return (
@@ -110,7 +207,15 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
     );
   }
 
-  const conversation = mockConversation;
+  if (!conversation) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600">Conversation not found</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -135,7 +240,7 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
                 <span>{conversation.customer.email}</span>
                 <span className="capitalize">{conversation.channel}</span>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  conversation.priority === 'high' ? 'bg-red-100 text-red-800' :
+                  conversation.priority === 'high' || conversation.priority === 'critical' ? 'bg-red-100 text-red-800' :
                   conversation.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                   'bg-green-100 text-green-800'
                 }`}>
@@ -152,10 +257,22 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
             >
               Escalate to Human
             </button>
-            <select className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button
+              onClick={handleAutoResponse}
+              disabled={generateAutoResponse.isLoading}
+              className="px-3 py-2 text-sm text-blue-600 hover:text-blue-700 border border-blue-200 rounded-lg hover:border-blue-300 disabled:opacity-50"
+            >
+              {generateAutoResponse.isLoading ? 'Generating...' : 'AI Suggest'}
+            </button>
+            <select 
+              value={conversation.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="open">Open</option>
-              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="pending_customer">Pending Customer</option>
               <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
             </select>
           </div>
         </div>
@@ -180,11 +297,11 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
                 <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                   <UserIcon className="h-4 w-4 text-gray-600" />
                 </div>
-                             ) : (
-                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                   <CpuChipIcon className="h-4 w-4 text-blue-600" />
-                 </div>
-               )}
+              ) : (
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <CpuChipIcon className="h-4 w-4 text-blue-600" />
+                </div>
+              )}
             </div>
             
             <div className={`max-w-md ${message.sender === 'customer' ? '' : 'text-right'}`}>
@@ -246,7 +363,11 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
             disabled={!newMessage.trim() || sendMessageMutation.isLoading}
             className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            <PaperAirplaneIcon className="h-4 w-4" />
+            {sendMessageMutation.isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <PaperAirplaneIcon className="h-4 w-4" />
+            )}
           </button>
         </form>
       </div>

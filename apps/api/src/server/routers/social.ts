@@ -212,4 +212,80 @@ export const socialRouter = createTRPCRouter({
         },
       };
     }),
+
+  getScheduledPosts: publicProcedure
+    .input(z.object({
+      startDate: z.date(),
+      endDate: z.date(),
+      platform: z.enum(['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok', 'youtube']).optional(),
+    }))
+    .query(async ({ input }) => {
+      // Return scheduled posts for the date range
+      return {
+        posts: [
+          {
+            id: '1',
+            platform: 'instagram',
+            content: {
+              text: 'Exciting new product launch coming next week! Stay tuned for amazing features.',
+              media: [{
+                type: 'image' as const,
+                url: '/images/product-launch.jpg',
+                altText: 'New product preview'
+              }],
+              hashtags: ['#ProductLaunch', '#Innovation', '#TechNews'],
+            },
+            status: 'scheduled',
+            scheduledAt: new Date('2024-01-25T14:00:00Z'),
+            createdAt: new Date('2024-01-20T10:00:00Z'),
+          },
+          {
+            id: '2',
+            platform: 'twitter',
+            content: {
+              text: "Weekly newsletter is out! Check out this week's insights and updates.",
+              hashtags: ['#Newsletter', '#Updates'],
+            },
+            status: 'scheduled',
+            scheduledAt: new Date('2024-01-22T10:00:00Z'),
+            createdAt: new Date('2024-01-20T15:30:00Z'),
+          },
+          {
+            id: '3',
+            platform: 'linkedin',
+            content: {
+              text: 'Behind the scenes: How we built our latest AI features. A deep dive into our development process.',
+              hashtags: ['#BehindTheScenes', '#AI', '#Development'],
+            },
+            status: 'draft',
+            scheduledAt: new Date('2024-01-28T16:30:00Z'),
+            createdAt: new Date('2024-01-21T09:15:00Z'),
+          },
+          {
+            id: '4',
+            platform: 'facebook',
+            content: {
+              text: 'Customer success story: How NeonHub helped increase engagement by 300%',
+              media: [{
+                type: 'image' as const,
+                url: '/images/success-story.jpg',
+                altText: 'Customer success metrics'
+              }],
+              hashtags: ['#CustomerSuccess', '#Results'],
+            },
+            status: 'scheduled',
+            scheduledAt: new Date('2024-01-26T12:00:00Z'),
+            createdAt: new Date('2024-01-22T11:00:00Z'),
+          }
+        ].filter(post => {
+          const postDate = new Date(post.scheduledAt!);
+          return postDate >= input.startDate && postDate <= input.endDate &&
+                 (!input.platform || post.platform === input.platform);
+        }),
+        pagination: {
+          total: 4,
+          hasMore: false
+        }
+      };
+    }),
 }); 

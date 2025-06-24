@@ -290,4 +290,99 @@ export const supportRouter = createTRPCRouter({
         ],
       };
     }),
+
+  getTicket: publicProcedure
+    .input(z.object({
+      ticketId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      // Return specific ticket details with conversation history
+      return {
+        ticket: {
+          id: input.ticketId,
+          customer: {
+            name: 'Sarah Johnson',
+            email: 'sarah.johnson@example.com',
+            phone: '+1-555-0123',
+            avatar: null,
+          },
+          subject: 'Issue with AI Content Generator',
+          status: 'open',
+          priority: 'medium',
+          channel: 'whatsapp',
+          escalated: false,
+          createdAt: new Date('2024-01-16T09:00:00Z'),
+          messages: [
+            {
+              id: '1',
+              sender: 'customer',
+              content: 'Hi, I\'m having trouble with the AI content generator. It keeps giving me generic responses.',
+              timestamp: new Date('2024-01-16T09:00:00Z'),
+              type: 'text',
+            },
+            {
+              id: '2',
+              sender: 'ai',
+              content: 'Hello Sarah! I understand you\'re experiencing issues with the AI content generator. Let me help you troubleshoot this. Can you tell me what type of content you\'re trying to generate?',
+              timestamp: new Date('2024-01-16T09:02:00Z'),
+              type: 'text',
+            },
+            {
+              id: '3',
+              sender: 'customer',
+              content: 'I\'m trying to create social media posts for my restaurant, but the suggestions are too generic and don\'t capture my brand voice.',
+              timestamp: new Date('2024-01-16T09:05:00Z'),
+              type: 'text',
+            },
+            {
+              id: '4',
+              sender: 'ai',
+              content: 'I see the issue. For more personalized content, try providing more specific details about your restaurant\'s style, target audience, and unique selling points in the prompt. Would you like me to guide you through creating a better prompt template?',
+              timestamp: new Date('2024-01-16T09:07:00Z'),
+              type: 'text',
+            },
+          ],
+        }
+      };
+    }),
+
+  sendMessage: publicProcedure
+    .input(z.object({
+      ticketId: z.string(),
+      content: z.string(),
+      type: z.enum(['text', 'image', 'file']).default('text'),
+      senderId: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const supportAgent = new CustomerSupportAgent();
+      
+      // Send the message
+      const result = await supportAgent.execute({
+        task: 'send_message',
+        context: {
+          ticketId: input.ticketId,
+          message: input.content,
+          sender: input.senderId,
+          type: input.type
+        },
+        priority: 'high'
+      });
+
+      // Generate AI response if needed
+      const aiResponse = await supportAgent.execute({
+        task: 'auto_respond',
+        context: {
+          message: input.content,
+          ticketId: input.ticketId
+        },
+        priority: 'medium'
+      });
+
+      return {
+        success: true,
+        messageId: Date.now().toString(),
+        aiResponse: aiResponse.response?.content,
+        ...result
+      };
+    }),
 }); 
