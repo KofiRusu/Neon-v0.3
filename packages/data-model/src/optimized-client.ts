@@ -77,7 +77,7 @@ export class OptimizedPrismaClient {
     // Return cached result if valid
     if (cachedEntry && this.isValidCacheEntry(cachedEntry)) {
       const metric: QueryMetrics = {
-        operation: operation,
+        operation,
         model: 'cached',
         duration: 0,
         timestamp: new Date(),
@@ -101,9 +101,9 @@ export class OptimizedPrismaClient {
 
     // Record metrics
     const metric: QueryMetrics = {
-      operation: operation,
+      operation,
       model: 'executed',
-      duration: duration,
+      duration,
       timestamp: new Date(),
       cached: false,
       recordCount: Array.isArray(result) ? result.length : 1

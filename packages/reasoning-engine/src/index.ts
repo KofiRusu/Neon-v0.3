@@ -74,6 +74,7 @@ export class ContextCache {
     
     if (redisUrl) {
       this.redis = Redis.createClient({ url: redisUrl });
+      // eslint-disable-next-line no-console
       this.redis.connect().catch(console.error);
     }
   }
@@ -102,6 +103,7 @@ export class ContextCache {
           return context;
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Redis cache error:', error);
       }
     }
@@ -130,6 +132,7 @@ export class ContextCache {
         const ttl = this.getTTL(context.priority);
         await this.redis.setEx(`context:${context.id}`, ttl, JSON.stringify(context));
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Redis cache error:', error);
       }
     }
@@ -410,7 +413,7 @@ export class ReasoningEngine extends EventEmitter {
     const words = fullResponse.split(' ');
 
     for (const word of words) {
-      yield word + ' ';
+      yield `${word  } `;
       await new Promise(resolve => setTimeout(resolve, 50)); // Simulate streaming delay
     }
 

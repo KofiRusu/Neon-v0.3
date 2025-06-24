@@ -184,9 +184,9 @@ export class SocialAgent extends AbstractAgent {
     const audienceModifiers = {
       general: content,
       business: content.replace(/amazing|awesome|love/g, 'exceptional').replace(/🔥|✨|💯/g, ''),
-      creative: content + ' Let your creativity shine!',
+      creative: `${content  } Let your creativity shine!`,
       technical: content.replace(/amazing|awesome/g, 'innovative').replace(/love/g, 'appreciate'),
-      young: content + ' 🔥💯',
+      young: `${content  } 🔥💯`,
       professional: content.replace(/!/g, '.').replace(/🔥|✨|💯|😊|🌟|💫|🎉|🌈|🚀/g, '')
     };
 
@@ -206,7 +206,7 @@ export class SocialAgent extends AbstractAgent {
     };
     
     const limit = Math.min(maxLength, platformDefaults[platform as keyof typeof platformDefaults] || maxLength);
-    return content.substring(0, limit - 3) + '...';
+    return `${content.substring(0, limit - 3)  }...`;
   }
 
   private async generateHashtagsForPost(topic: string, platform: string): Promise<string[]> {
@@ -535,7 +535,7 @@ export class SocialAgent extends AbstractAgent {
           totalPosts: Math.floor(Math.random() * 50 + 20),
           totalReach: Math.floor(baseReach * (1 + Math.random())),
           totalEngagements: Math.floor(baseReach * (baseEngagement / 100)),
-          engagementRate: baseEngagement.toFixed(2) + '%',
+          engagementRate: `${baseEngagement.toFixed(2)  }%`,
           followerGrowth: Math.floor(baseGrowth),
           topPost: {
             id: `top_post_${platform}`,
@@ -561,7 +561,7 @@ export class SocialAgent extends AbstractAgent {
     const overallMetrics = {
               totalReach: platformPerformance.reduce((sum: number, p: any) => sum + (p?.metrics.totalReach || 0), 0),
               totalEngagements: platformPerformance.reduce((sum: number, p: any) => sum + (p?.metrics.totalEngagements || 0), 0),
-              averageEngagementRate: (platformPerformance.reduce((sum: number, p: any) => sum + parseFloat(p?.metrics.engagementRate || '0'), 0) / platformPerformance.length).toFixed(2) + '%',
+              averageEngagementRate: `${(platformPerformance.reduce((sum: number, p: any) => sum + parseFloat(p?.metrics.engagementRate || '0'), 0) / platformPerformance.length).toFixed(2)  }%`,
               totalFollowerGrowth: platformPerformance.reduce((sum: number, p: any) => sum + (p?.metrics.followerGrowth || 0), 0)
     };
 
@@ -769,7 +769,7 @@ export class SocialAgent extends AbstractAgent {
       completedAt: new Date(),
       impact: {
         followerIncrease: Math.floor(Math.random() * 5),
-        engagementBoost: Math.floor(Math.random() * 20 + 10) + '%',
+        engagementBoost: `${Math.floor(Math.random() * 20 + 10)  }%`,
         reachIncrease: Math.floor(Math.random() * 500 + 100)
       }
     }));
@@ -780,11 +780,11 @@ export class SocialAgent extends AbstractAgent {
       totalOpportunities: engagementActions.length,
       actionsCompleted: successfulActions.length,
       failedActions: results.length - successfulActions.length,
-      successRate: (successfulActions.length / results.length * 100).toFixed(1) + '%',
+      successRate: `${(successfulActions.length / results.length * 100).toFixed(1)  }%`,
       engagementResults: results.slice(0, 20), // Preview first 20
       impact: {
         totalFollowerIncrease: successfulActions.reduce((sum: number, a: any) => sum + a.impact.followerIncrease, 0),
-        avgEngagementBoost: (successfulActions.reduce((sum: number, a: any) => sum + parseFloat(a.impact.engagementBoost), 0) / successfulActions.length).toFixed(1) + '%',
+        avgEngagementBoost: `${(successfulActions.reduce((sum: number, a: any) => sum + parseFloat(a.impact.engagementBoost), 0) / successfulActions.length).toFixed(1)  }%`,
         totalReachIncrease: successfulActions.reduce((sum: number, a: any) => sum + a.impact.reachIncrease, 0)
       },
       recommendations: [
@@ -795,7 +795,7 @@ export class SocialAgent extends AbstractAgent {
       ],
       metadata: {
         executedAt: new Date().toISOString(),
-        platforms: platforms,
+        platforms,
         engagementType,
         responseTime
       }
@@ -944,7 +944,7 @@ export class SocialAgent extends AbstractAgent {
     
     if (content.length <= limit) return content;
     
-    return content.substring(0, limit - 3) + '...';
+    return `${content.substring(0, limit - 3)  }...`;
   }
 
   private optimizeHashtagsForPlatform(hashtags: string[], platform: string): string[] {

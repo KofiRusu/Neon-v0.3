@@ -6,14 +6,12 @@ import { trpc } from '../lib/trpc';
 import {
   ChartBarIcon,
   CogIcon,
-  UserGroupIcon,
   SparklesIcon,
   PlayIcon,
   PauseIcon,
   ArrowTrendingUpIcon,
   DocumentTextIcon,
   MegaphoneIcon,
-  PaintBrushIcon,
   BellIcon,
   MagnifyingGlassIcon,
   PlusIcon,
@@ -22,7 +20,7 @@ import {
   GlobeAltIcon,
 } from '@heroicons/react/24/outline';
 
-export default function Dashboard() {
+export default function Dashboard(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch real data from our API

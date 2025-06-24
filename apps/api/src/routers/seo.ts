@@ -21,7 +21,7 @@ export const seoRouter = router({
         seoScore: Math.floor(Math.random() * 30) + 70, // 70-100
         keywordDensity: input.targetKeywords?.map(keyword => ({
           keyword,
-          density: (Math.random() * 3 + 0.5).toFixed(2) + '%',
+          density: `${(Math.random() * 3 + 0.5).toFixed(2)  }%`,
           occurrences: Math.floor(Math.random() * 10) + 2,
           isOptimal: Math.random() > 0.3
         })) || [],
@@ -144,7 +144,7 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           wordCount,
           keywordDensity: input.targetKeywords.map(keyword => ({
             keyword,
-            density: (Math.random() * 2 + 1).toFixed(2) + '%',
+            density: `${(Math.random() * 2 + 1).toFixed(2)  }%`,
             occurrences: Math.floor(Math.random() * 5) + 3
           })),
           readabilityScore: Math.floor(Math.random() * 20) + 80, // 80-100
@@ -250,8 +250,8 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           change: 0
         },
         clickThroughRate: {
-          current: (Math.random() * 5 + 2).toFixed(2) + '%',
-          previous: (Math.random() * 4 + 1.5).toFixed(2) + '%',
+          current: `${(Math.random() * 5 + 2).toFixed(2)  }%`,
+          previous: `${(Math.random() * 4 + 1.5).toFixed(2)  }%`,
           change: 0
         },
         totalKeywords: Math.floor(Math.random() * 500) + 200,
@@ -270,7 +270,7 @@ Contact us today for a free consultation and quote. Let's discuss how our ${inpu
           position: Math.floor(Math.random() * 20) + 1,
           clicks: Math.floor(Math.random() * 1000) + 100,
           impressions: Math.floor(Math.random() * 10000) + 1000,
-          ctr: (Math.random() * 8 + 2).toFixed(2) + '%',
+          ctr: `${(Math.random() * 8 + 2).toFixed(2)  }%`,
           trend: Math.random() > 0.5 ? 'up' : 'down'
         })) || [],
         metadata: {

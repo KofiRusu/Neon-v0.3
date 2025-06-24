@@ -63,7 +63,7 @@ const mockConversation = {
   ],
 };
 
-export default function SupportInbox({ selectedThread }: SupportInboxProps) {
+export default function SupportInbox({ selectedThread }: SupportInboxProps): JSX.Element {
   const [newMessage, setNewMessage] = useState('');
   const [showEscalation, setShowEscalation] = useState(false);
 
@@ -72,11 +72,12 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
       setNewMessage('');
     },
     onError: (error) => {
+      // eslint-disable-next-line no-console
       console.error('Failed to send message:', error);
     },
   });
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedThread) return;
 
@@ -87,11 +88,12 @@ export default function SupportInbox({ selectedThread }: SupportInboxProps) {
         type: 'text',
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Send failed:', error);
     }
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date: Date): string => {
     return date.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit' 

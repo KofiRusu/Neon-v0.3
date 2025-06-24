@@ -350,7 +350,7 @@ export class WhatsAppAgent extends AbstractAgent {
       totalRecipients: recipients.length,
       successful,
       failed,
-      successRate: (successful / recipients.length * 100).toFixed(2) + '%',
+      successRate: `${(successful / recipients.length * 100).toFixed(2)  }%`,
       results: results.slice(0, 50), // Return first 50 for preview
       batchCount: batches.length,
       estimatedCost: successful * 0.05, // Estimated cost per message

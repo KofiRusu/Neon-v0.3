@@ -185,7 +185,7 @@ export default function ContentAgentTab() {
                     </span>
                   </div>
                   <button
-                    onClick={() => copyToClipboard(post.content + '\n\n' + post.hashtags.join(' '), post.id)}
+                    onClick={() => copyToClipboard(`${post.content  }\n\n${  post.hashtags.join(' ')}`, post.id)}
                     className="btn-pill flex items-center space-x-1"
                   >
                     {copiedId === post.id ? (

@@ -499,7 +499,7 @@ Return the optimized content maintaining the original structure and tone.
     return [
       {
         domain: 'competitor1.com',
-        title: 'Leading Platform for ' + context.keywords[0],
+        title: `Leading Platform for ${  context.keywords[0]}`,
         description: 'Comprehensive solution for modern businesses',
         strengths: ['Strong brand authority', 'High-quality content', 'Good technical SEO'],
         weaknesses: ['Limited social media presence', 'Slow page speed'],
@@ -650,13 +650,13 @@ Return the optimized content maintaining the original structure and tone.
 
     // Add plurals
     words.forEach(word => {
-      if (!word.endsWith('s')) variants.push(word + 's');
+      if (!word.endsWith('s')) variants.push(`${word  }s`);
     });
 
     // Add common variations
-    variants.push(keyword + ' guide');
-    variants.push(keyword + ' tips');
-    variants.push('best ' + keyword);
+    variants.push(`${keyword  } guide`);
+    variants.push(`${keyword  } tips`);
+    variants.push(`best ${  keyword}`);
 
     return variants.slice(0, 5);
   }
@@ -799,8 +799,8 @@ Return the optimized content maintaining the original structure and tone.
 
     // Add internal linking suggestions
     if (!optimizedContent.includes('[') && !optimizedContent.includes('(')) {
-      optimizedContent += '\n\n*Internal linking opportunities: Consider linking to related content about ' + 
-                          targetKeywords.slice(0, 2).join(', ') + '.*';
+      optimizedContent += `\n\n*Internal linking opportunities: Consider linking to related content about ${  
+                          targetKeywords.slice(0, 2).join(', ')  }.*`;
     }
 
     return optimizedContent;
@@ -837,7 +837,7 @@ Return the optimized content maintaining the original structure and tone.
     const generatedTitle = titleTemplates[contentType] || titleTemplates.article;
     
     // Ensure it's within optimal length
-    return generatedTitle.length <= 60 ? generatedTitle : generatedTitle.substring(0, 57) + '...';
+    return generatedTitle.length <= 60 ? generatedTitle : `${generatedTitle.substring(0, 57)  }...`;
   }
 
   private async generateOptimalDescription(context: SEOOptimizationContext, keywords: KeywordAnalysis[]): Promise<string> {
@@ -854,7 +854,7 @@ Return the optimized content maintaining the original structure and tone.
                            `Get actionable insights and proven results today.`;
     
     // Ensure it's within optimal length
-    return metaDescription.length <= 160 ? metaDescription : metaDescription.substring(0, 157) + '...';
+    return metaDescription.length <= 160 ? metaDescription : `${metaDescription.substring(0, 157)  }...`;
   }
 
   private generateSEOFriendlyUrl(title: string, contentType: string): string {

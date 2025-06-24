@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { format } from 'date-fns';
 import { trpc } from '@/lib/trpc';
 
 // Types
@@ -216,7 +215,7 @@ export default function EmailCampaignManagerPage(): JSX.Element {
     );
   };
 
-  const TabButton = ({ id, label, active, onClick }: { id: string; label: string; active: boolean; onClick: () => void }): JSX.Element => (
+  const TabButton = ({ id: _id, label, active, onClick }: { id: string; label: string; active: boolean; onClick: () => void }): JSX.Element => (
     <button
       onClick={onClick}
       className={`px-6 py-3 font-medium rounded-lg transition-all duration-200 ${

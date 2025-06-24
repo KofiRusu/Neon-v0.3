@@ -4,6 +4,7 @@ import { campaignRouter } from './campaign';
 import { createTRPCMockContext, createMockSession, createMockCampaign } from '../__test__/helpers/mock-context';
 
 describe('campaignRouter', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockContext: any;
 
   beforeEach(() => {
@@ -214,7 +215,7 @@ describe('campaignRouter', () => {
 
   describe('getMetrics', () => {
     it('should return campaign performance metrics', async () => {
-      const mockMetrics = {
+      const _mockMetrics = {
         impressions: 10000,
         clicks: 500,
         conversions: 25,
