@@ -25,6 +25,7 @@ export * from './agents/outreach-agent';
 export * from './agents/trend-agent';
 export * from './agents/insight-agent';
 export * from './agents/design-agent';
+export * from './agents/brand-voice-agent';
 
 // Export WhatsAppAgent as CustomerSupportAgent for compatibility
 export { WhatsAppAgent as CustomerSupportAgent } from './agents/whatsapp-agent';

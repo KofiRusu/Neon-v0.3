@@ -357,6 +357,7 @@ enum AgentType {
   TREND
   INSIGHT
   DESIGN
+  BRAND_VOICE
 }
 
 enum AgentStatus {
@@ -458,4 +459,37 @@ enum SupportChannel {
   CHAT
   PHONE
   SOCIAL
+}
+
+model BrandVoice {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  guidelines    Json
+  keywords      String[]
+  toneProfile   Json
+  isActive      Boolean  @default(true)
+  version       String   @default("1.0")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  analysisData  Json?
+  sampleContent Json?
+  analyses      BrandVoiceAnalysis[]
+
+  @@map("brand_voices")
+}
+
+model BrandVoiceAnalysis {
+  id           String     @id @default(cuid())
+  brandVoiceId String
+  contentId    String?
+  contentType  String
+  originalText String
+  voiceScore   Float
+  suggestions  Json
+  analyzedAt   DateTime   @default(now())
+  metadata     Json?
+  brandVoice   BrandVoice @relation(fields: [brandVoiceId], references: [id], onDelete: Cascade)
+
+  @@map("brand_voice_analyses")
 }
