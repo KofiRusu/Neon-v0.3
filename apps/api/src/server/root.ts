@@ -14,7 +14,7 @@ import { supportRouter } from './routers/support';
  *
  * All routers added in /api/routers should be manually added here.
  */
-export const appRouter = createTRPCRouter({
+export const appRouter: any = createTRPCRouter({
   user: userRouter,
   campaign: campaignRouter,
   metrics: metricsRouter,

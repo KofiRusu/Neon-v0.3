@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
 import { type UserRole } from '@neon/data-model';
 
-export const userRouter = createTRPCRouter({
+export const userRouter: any = createTRPCRouter({
   // Get all users (protected)
   getAll: protectedProcedure.query(async ({ ctx }) => {
     return ctx.db.user.findMany({

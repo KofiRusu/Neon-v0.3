@@ -1,8 +1,8 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 import { type NextRequest } from 'next/server';
+import { db } from '@neon/data-model';
 
 import { appRouter } from '~/server/root';
-import { createTRPCContext } from '~/server/trpc';
 import { logger } from '@neon/utils';
 
 const handler = (req: NextRequest): Promise<Response> =>
@@ -10,7 +10,11 @@ const handler = (req: NextRequest): Promise<Response> =>
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext: () => createTRPCContext({ req: req as NextRequest, res: {} as Response }),
+    createContext: () => ({ 
+      db, 
+      req: undefined as any, 
+      res: undefined as any 
+    }),
     onError: ({ path, error }): void => {
       if (process.env.NODE_ENV === 'development') {
         logger.error(`❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`);

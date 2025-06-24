@@ -14,7 +14,7 @@ const agentNames = [
   'DesignAgent',
 ] as const;
 
-export const agentRouter = createTRPCRouter({
+export const agentRouter: any = createTRPCRouter({
   // Get all AI event logs
   getLogs: publicProcedure
     .input(

@@ -194,7 +194,7 @@ export interface ABTestResult {
 export class EmailMarketingAgent extends AbstractAgent {
   private openai: OpenAI;
   private templates: Map<string, EmailTemplate> = new Map();
-  private sequences: Map<string, EmailSequence> = new Map();
+  // private sequences: Map<string, EmailSequence> = new Map(); // TODO: Implement sequence functionality
   private activeTests: Map<string, ABTestResult> = new Map();
 
   constructor() {
@@ -380,7 +380,7 @@ export class EmailMarketingAgent extends AbstractAgent {
    * Create and manage A/B tests
    */
   async createABTest(input: ABTestInput): Promise<ABTestResult> {
-    const { name, variants, testMetric, sampleSize, duration, audience } = input;
+    const { variants, testMetric, sampleSize } = input;
     
     if (variants.length < 2) {
       throw new Error('A/B test requires at least 2 variants');
@@ -429,8 +429,10 @@ export class EmailMarketingAgent extends AbstractAgent {
       return (bMetric as number) - (aMetric as number);
     });
 
-    testResult.winner = sortedVariants[0].id;
-    sortedVariants[0].isWinner = true;
+    if (sortedVariants.length > 0) {
+      testResult.winner = sortedVariants[0].id;
+      sortedVariants[0].isWinner = true;
+    }
 
     // Generate insights and recommendations
     testResult.insights = this.generateABTestInsights(testResult);
@@ -699,7 +701,7 @@ Format as JSON with insights array and recommendations array.
     };
   }
 
-  private analyzePerformanceFallback(data: EmailPerformanceData, metrics: any): PerformanceAnalysis {
+  private analyzePerformanceFallback(_data: EmailPerformanceData, metrics: any): PerformanceAnalysis {
     const score = this.calculatePerformanceScore(metrics);
     
     return {
@@ -766,15 +768,27 @@ Format as JSON with insights array and recommendations array.
     return Math.round(Math.min(100, score));
   }
 
-  private generateOptimizationSuggestions(metrics: any) {
-    const suggestions = [];
+  private generateOptimizationSuggestions(metrics: any): Array<{
+    category: string;
+    suggestion: string;
+    impact: 'low' | 'medium' | 'high';
+    effort: 'easy' | 'medium' | 'hard';
+    priority: number;
+  }> {
+    const suggestions: Array<{
+      category: string;
+      suggestion: string;
+      impact: 'low' | 'medium' | 'high';
+      effort: 'easy' | 'medium' | 'hard';
+      priority: number;
+    }> = [];
     
     if (metrics.openRate < 20) {
       suggestions.push({
         category: 'Subject Lines',
         suggestion: 'Test more compelling subject lines with urgency or personalization',
-        impact: 'high',
-        effort: 'easy',
+        impact: 'high' as const,
+        effort: 'easy' as const,
         priority: 9
       });
     }
@@ -783,8 +797,8 @@ Format as JSON with insights array and recommendations array.
       suggestions.push({
         category: 'Content',
         suggestion: 'Improve call-to-action buttons and email design',
-        impact: 'high',
-        effort: 'medium',
+        impact: 'high' as const,
+        effort: 'medium' as const,
         priority: 8
       });
     }
@@ -793,8 +807,8 @@ Format as JSON with insights array and recommendations array.
       suggestions.push({
         category: 'Deliverability',
         suggestion: 'Clean email list and improve sender reputation',
-        impact: 'high',
-        effort: 'hard',
+        impact: 'high' as const,
+        effort: 'hard' as const,
         priority: 10
       });
     }
@@ -808,7 +822,12 @@ Format as JSON with insights array and recommendations array.
     
     if (winner) {
       insights.push(`Variant ${winner.name} performed best with ${winner.performance.openRate.toFixed(1)}% open rate`);
-      insights.push(`Winner showed ${Math.abs(winner.performance.openRate - testResult.variants[1].performance.openRate).toFixed(1)}% improvement over other variants`);
+      if (testResult.variants.length > 1) {
+        const otherVariant = testResult.variants.find(v => !v.isWinner);
+        if (otherVariant) {
+          insights.push(`Winner showed ${Math.abs(winner.performance.openRate - otherVariant.performance.openRate).toFixed(1)}% improvement over other variants`);
+        }
+      }
     }
     
     insights.push('Test reached statistical significance');
@@ -817,7 +836,7 @@ Format as JSON with insights array and recommendations array.
     return insights;
   }
 
-  private generateABTestRecommendations(testResult: ABTestResult): string[] {
+  private generateABTestRecommendations(_testResult: ABTestResult): string[] {
     return [
       'Apply winning variant to similar campaigns',
       'Test additional elements like send time and from name',
@@ -841,23 +860,23 @@ Format as JSON with insights array and recommendations array.
 
   // Additional features for complete email marketing platform
 
-  private async sendCampaign(context: any): Promise<any> {
+  private async sendCampaign(_context: any): Promise<any> {
     // Implementation for sending email campaigns
     // This would integrate with SendGrid or other email service
     return { success: true, campaignId: `campaign_${Date.now()}` };
   }
 
-  private async manageTemplates(context: any): Promise<any> {
+  private async manageTemplates(_context: any): Promise<any> {
     // Template management functionality
     return { success: true, templates: Array.from(this.templates.values()) };
   }
 
-  private async segmentAudience(context: any): Promise<any> {
+  private async segmentAudience(_context: any): Promise<any> {
     // Audience segmentation functionality
     return { success: true, segments: [] };
   }
 
-  private async optimizeSendTimes(context: any): Promise<any> {
+  private async optimizeSendTimes(_context: any): Promise<any> {
     // Send time optimization using AI
     return { 
       success: true, 
@@ -866,7 +885,7 @@ Format as JSON with insights array and recommendations array.
     };
   }
 
-  private async generateSubjectLines(context: any): Promise<any> {
+  private async generateSubjectLines(_context: any): Promise<any> {
     // AI-powered subject line generation
     return { 
       success: true, 
@@ -878,7 +897,7 @@ Format as JSON with insights array and recommendations array.
     };
   }
 
-  private async createNewsletter(context: any): Promise<any> {
+  private async createNewsletter(_context: any): Promise<any> {
     // Newsletter creation with AI assistance
     return { 
       success: true, 

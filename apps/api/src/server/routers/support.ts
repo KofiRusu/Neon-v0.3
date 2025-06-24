@@ -70,7 +70,7 @@ const EscalationInputSchema = z.object({
   agentWorkload: z.number().optional()
 });
 
-export const supportRouter = createTRPCRouter({
+export const supportRouter: any = createTRPCRouter({
   /**
    * Classify incoming support messages using AI
    */

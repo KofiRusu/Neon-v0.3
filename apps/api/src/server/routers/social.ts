@@ -2,7 +2,7 @@ import { SocialAgent } from "@neon/core-agents";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-export const socialRouter = createTRPCRouter({
+export const socialRouter: any = createTRPCRouter({
   generatePost: publicProcedure
     .input(z.object({
       platform: z.enum(['instagram', 'facebook', 'twitter', 'linkedin', 'tiktok', 'youtube']),

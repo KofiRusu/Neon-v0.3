@@ -2,7 +2,7 @@ import { ContentAgent } from "@neon/core-agents";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-export const contentRouter = createTRPCRouter({
+export const contentRouter: any = createTRPCRouter({
   generatePost: publicProcedure
     .input(z.object({
       type: z.enum(['blog', 'social_post', 'email', 'caption', 'copy']),
@@ -10,11 +10,19 @@ export const contentRouter = createTRPCRouter({
       audience: z.string(),
       tone: z.enum(['professional', 'casual', 'friendly', 'authoritative', 'playful']),
       keywords: z.array(z.string()).optional(),
-      platform: z.string().optional()
+      platform: z.enum(['facebook', 'instagram', 'twitter', 'linkedin', 'email']).optional()
     }))
     .mutation(async ({ input }) => {
       const contentAgent = new ContentAgent();
-      return await contentAgent.generatePost(input);
+              const context = {
+        type: input.type,
+        topic: input.topic,
+        audience: input.audience,
+        tone: input.tone,
+        ...(input.keywords && { keywords: input.keywords }),
+        ...(input.platform && { platform: input.platform })
+      };
+      return await contentAgent.generatePost(context);
     }),
 
   generateBlog: publicProcedure
@@ -26,11 +34,15 @@ export const contentRouter = createTRPCRouter({
     }))
     .mutation(async ({ input }) => {
       const contentAgent = new ContentAgent();
-      return await contentAgent.generateBlog({
-        ...input,
-        type: 'blog',
-        length: 'long'
-      });
+      const context = {
+        type: 'blog' as const,
+        topic: input.topic,
+        audience: input.audience,
+        tone: input.tone,
+        length: 'long' as const,
+        ...(input.keywords && { keywords: input.keywords })
+      };
+      return await contentAgent.generateBlog(context);
     }),
 
   generateCaption: publicProcedure
@@ -42,10 +54,14 @@ export const contentRouter = createTRPCRouter({
     }))
     .mutation(async ({ input }) => {
       const contentAgent = new ContentAgent();
-      return await contentAgent.generateCaption({
-        ...input,
-        type: 'caption',
-        length: 'short'
-      });
+      const context = {
+        type: 'caption' as const,
+        topic: input.topic,
+        audience: input.audience,
+        tone: input.tone,
+        length: 'short' as const,
+        ...(input.platform && { platform: input.platform })
+      };
+      return await contentAgent.generateCaption(context);
     }),
 }); 

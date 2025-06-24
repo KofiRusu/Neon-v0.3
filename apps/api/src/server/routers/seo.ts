@@ -40,7 +40,7 @@ const technicalAuditSchema = z.object({
   content: z.string().min(1, "Content is required"),
 });
 
-export const seoRouter = createTRPCRouter({
+export const seoRouter: any = createTRPCRouter({
   /**
    * Comprehensive SEO optimization with AI-powered analysis
    */

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
 import { type CampaignType, type CampaignStatus } from '@neon/data-model';
 
-export const campaignRouter = createTRPCRouter({
+export const campaignRouter: any = createTRPCRouter({
   // Get all campaigns
   getAll: publicProcedure
     .input(

@@ -79,7 +79,7 @@ const SendCampaignSchema = z.object({
   }).optional()
 });
 
-export const emailRouter = createTRPCRouter({
+export const emailRouter: any = createTRPCRouter({
   /**
    * Generate AI-powered email sequence
    */

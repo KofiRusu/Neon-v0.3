@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
 
-export const metricsRouter = createTRPCRouter({
+export const metricsRouter: any = createTRPCRouter({
   // Get metrics for a specific campaign
   getByCampaign: publicProcedure
     .input(
