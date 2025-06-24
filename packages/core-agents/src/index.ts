@@ -25,9 +25,14 @@ export * from './agents/outreach-agent';
 export * from './agents/trend-agent';
 export * from './agents/insight-agent';
 export * from './agents/design-agent';
+export * from './agents/support-agent';
+export * from './agents/ui-refinement-agent';
 
-// Export WhatsAppAgent as CustomerSupportAgent for compatibility
-export { WhatsAppAgent as CustomerSupportAgent } from './agents/whatsapp-agent';
+// Export actual CustomerSupportAgent from support-agent.ts
+export { CustomerSupportAgent } from './agents/support-agent';
+
+// Export WhatsAppAgent separately
+export { WhatsAppAgent } from './agents/whatsapp-agent';
 
 // Agent Manager and Factory
 export { AgentManager, AgentFactory } from './base-agent';

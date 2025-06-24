@@ -214,7 +214,7 @@ describe('campaignRouter', () => {
 
   describe('getMetrics', () => {
     it('should return campaign performance metrics', async () => {
-      const mockMetrics = {
+      const _mockMetrics = {
         impressions: 10000,
         clicks: 500,
         conversions: 25,

@@ -49,7 +49,17 @@ export const seoRouter: any = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         const seoAgent = new SEOAgent();
-        const result = await seoAgent.optimizeKeywords(input);
+        const result = await seoAgent.optimizeKeywords({
+          content: input.content,
+          contentType: input.contentType,
+          targetKeywords: input.targetKeywords,
+          ...(input.url && { url: input.url }),
+          ...(input.description && { description: input.description }),
+          ...(input.targetAudience && { targetAudience: input.targetAudience }),
+          ...(input.title && { title: input.title }),
+          ...(input.businessContext && { businessContext: input.businessContext }),
+          ...(input.focusKeyword && { focusKeyword: input.focusKeyword }),
+        });
         
         logger.info('SEO optimization completed', {
           contentLength: input.content.length,
@@ -101,7 +111,14 @@ export const seoRouter: any = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         const seoAgent = new SEOAgent();
-        const metaTags = await seoAgent.generateMetaTags(input);
+        const metaTags = await seoAgent.generateMetaTags({
+          content: input.content,
+          topic: input.topic,
+          ...(input.targetAudience && { targetAudience: input.targetAudience }),
+          ...(input.keywords && { keywords: input.keywords }),
+          ...(input.businessContext && { businessContext: input.businessContext }),
+          ...(input.contentType && { contentType: input.contentType }),
+        });
         
         logger.info('Meta tags generated', {
           topic: input.topic,
@@ -129,7 +146,10 @@ export const seoRouter: any = createTRPCRouter({
     .query(async ({ input }) => {
       try {
         const seoAgent = new SEOAgent();
-        const recommendations = await seoAgent.recommendKeywords(input);
+        const recommendations = await seoAgent.recommendKeywords({
+          topic: input.topic,
+          ...(input.businessContext && { businessContext: input.businessContext }),
+        });
         
         logger.info('Keyword recommendations generated', {
           topic: input.topic,
@@ -251,8 +271,8 @@ export const seoRouter: any = createTRPCRouter({
             priority: 'high'
           }),
           seoAgent.recommendKeywords({
-            topic: input.focusKeyword || input.targetKeywords[0],
-            businessContext: input.businessContext
+            topic: input.focusKeyword || input.targetKeywords[0] || 'general',
+            ...(input.businessContext && { businessContext: input.businessContext })
           }),
           input.url ? seoAgent.execute({
             task: 'audit_technical_seo',
