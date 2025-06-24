@@ -19,6 +19,7 @@ export * from './agents/content-agent';
 export * from './agents/seo-agent';
 export * from './agents/email-agent';
 export * from './agents/social-agent';
+export * from './agents/support-agent';
 export * from './agents/whatsapp-agent';
 export * from './agents/ad-agent';
 export * from './agents/outreach-agent';
@@ -26,6 +27,7 @@ export * from './agents/trend-agent';
 export * from './agents/insight-agent';
 export * from './agents/design-agent';
 export * from './agents/brand-voice-agent';
+export * from './agents/ui-refinement-agent';
 
 // Export WhatsAppAgent as CustomerSupportAgent for compatibility
 export { WhatsAppAgent as CustomerSupportAgent } from './agents/whatsapp-agent';
