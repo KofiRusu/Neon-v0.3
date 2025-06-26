@@ -6,8 +6,19 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { SocialApiClient } from '@neon/utils/social-api-client';
+import { logger } from '@neon/utils';
 
 const socialApiClient = new SocialApiClient();
+
+interface TrendData {
+  keyword: string;
+  platform: string;
+  score: number;
+  metadata?: {
+    industry?: string;
+    [key: string]: unknown;
+  };
+}
 
 export const trendsRouter = createTRPCRouter({
   // Get all trending data across platforms
@@ -22,7 +33,8 @@ export const trendsRouter = createTRPCRouter({
           count: trends.length,
           lastUpdated: new Date().toISOString(),
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to fetch trends', { error }, 'TrendsRouter');
         return {
           success: false,
           data: [],
@@ -63,7 +75,8 @@ export const trendsRouter = createTRPCRouter({
           platform: input.platform,
           count: limitedTrends.length,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to fetch platform trends', { error, platform: input.platform }, 'TrendsRouter');
         return {
           success: false,
           data: [],
@@ -86,7 +99,8 @@ export const trendsRouter = createTRPCRouter({
           data: regionScores,
           region: input.region,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to fetch regional scores', { error, region: input.region }, 'TrendsRouter');
         return {
           success: false,
           data: null,
@@ -144,7 +158,8 @@ export const trendsRouter = createTRPCRouter({
             analyzedAt: new Date().toISOString(),
           },
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to analyze trend predictions', { error, keywords: input.keywords }, 'TrendsRouter');
         return {
           success: false,
           data: null,
@@ -192,7 +207,8 @@ export const trendsRouter = createTRPCRouter({
           industry: input.industry,
           contentType: input.contentType,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to generate trend insights', { error, industry: input.industry }, 'TrendsRouter');
         return {
           success: false,
           data: null,
@@ -243,7 +259,8 @@ export const trendsRouter = createTRPCRouter({
             alertCount: alerts.length,
           },
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Failed to monitor keywords', { error, keywordCount: input.keywords.length }, 'TrendsRouter');
         return {
           success: false,
           data: null,
@@ -266,7 +283,7 @@ function getRecommendation(prediction: string, score: number): string {
   }
 }
 
-function getBestPlatforms(trends: any[]): string[] {
+function getBestPlatforms(trends: TrendData[]): string[] {
   const platformCounts = trends.reduce((acc, trend) => {
     acc[trend.platform] = (acc[trend.platform] || 0) + trend.score;
     return acc;
@@ -278,7 +295,7 @@ function getBestPlatforms(trends: any[]): string[] {
     .map(([platform]) => platform);
 }
 
-function getContentRecommendations(trends: any[], contentType?: string): string[] {
+function getContentRecommendations(trends: TrendData[], contentType?: string): string[] {
   const recommendations = [
     'Use trending hashtags in your content',
     'Create content around peak engagement times',
@@ -302,7 +319,7 @@ function getOptimalTiming(): string[] {
   ];
 }
 
-function calculateExpectedReach(trends: any[]): number {
+function calculateExpectedReach(trends: TrendData[]): number {
   const avgScore = trends.reduce((sum, trend) => sum + trend.score, 0) / trends.length;
   return Math.floor(avgScore * 100000); // Mock calculation
 } 

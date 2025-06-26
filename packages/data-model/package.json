@@ -8,6 +8,10 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
+    "lint": "eslint . --ext .ts --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests for data-model package'",
+    "test:ci": "echo 'No tests for data-model package'",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
@@ -23,6 +27,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "eslint": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint-config-prettier": "^9.0.0",
     "prisma": "^5.19.1",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3"

@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { LeadScraper } from '@neon/utils/lead-scraper';
 import { PDFGenerator } from '@neon/utils/pdf-generator';
+import { logger } from '@neon/utils';
 
 const leadScraper = new LeadScraper();
 const pdfGenerator = new PDFGenerator();
@@ -40,7 +41,8 @@ export const outreachRouter = createTRPCRouter({
           count: leads.length,
           searchQuery: input.searchQuery,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Lead scraping error', { error, searchQuery: input.searchQuery }, 'OutreachRouter');
         return {
           success: false,
           data: [],
@@ -62,7 +64,8 @@ export const outreachRouter = createTRPCRouter({
           success: true,
           data: enrichedData,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Lead enrichment error', { error, email: input.email }, 'OutreachRouter');
         return {
           success: false,
           data: null,
@@ -95,7 +98,8 @@ export const outreachRouter = createTRPCRouter({
           downloadUrl: `/api/proposals/${proposalId}`,
           size: pdfBuffer.length,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Proposal generation error', { error, clientName: input.clientName }, 'OutreachRouter');
         return {
           success: false,
           error: 'Failed to generate proposal',
@@ -124,7 +128,8 @@ export const outreachRouter = createTRPCRouter({
           downloadUrl: `/api/offers/${offerId}`,
           size: pdfBuffer.length,
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Offer sheet generation error', { error, signType: input.signType }, 'OutreachRouter');
         return {
           success: false,
           error: 'Failed to generate offer sheet',
@@ -140,7 +145,7 @@ export const outreachRouter = createTRPCRouter({
       template: z.string(),
       personalization: z.record(z.string()).optional(),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async () => {
       try {
         // Mock email sending - integrate with SendGrid/Mailgun
         const emailId = `email_${Date.now()}`;
@@ -152,7 +157,8 @@ export const outreachRouter = createTRPCRouter({
           status: 'sent',
           sentAt: new Date().toISOString(),
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Outreach email error', { error }, 'OutreachRouter');
         return {
           success: false,
           error: 'Failed to send outreach email',
@@ -194,7 +200,7 @@ export const outreachRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       try {
         const validationResults = await Promise.all(
-          input.emails.map(async (email) => ({
+          input.emails.map(async (email: string) => ({
             email,
             isValid: await leadScraper.validateEmail(email),
           }))
@@ -213,7 +219,8 @@ export const outreachRouter = createTRPCRouter({
             invalidEmails: invalidEmails.map(v => v.email),
           },
         };
-      } catch (_error) {
+      } catch (error) {
+        logger.error('Email validation error', { error, emailCount: input.emails.length }, 'OutreachRouter');
         return {
           success: false,
           error: 'Failed to validate emails',
