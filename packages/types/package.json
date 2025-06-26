@@ -5,7 +5,11 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint": "echo 'No linting needed for types package'",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'No tests for types package'",
+    "test:ci": "echo 'No tests for types package'"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

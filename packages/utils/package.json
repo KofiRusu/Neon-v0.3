@@ -6,7 +6,10 @@
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
+    "lint": "eslint . --ext .ts --max-warnings 0",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
+    "test:ci": "jest --ci --coverage",
     "test:watch": "jest --watch"
   },
   "dependencies": {
@@ -15,6 +18,11 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.57.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint-config-prettier": "^9.0.0",
     "jest": "^30.0.2",
     "typescript": "^5.8.3"
   },

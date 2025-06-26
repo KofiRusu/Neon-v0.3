@@ -273,7 +273,7 @@ export const seoRouter = createTRPCRouter({
           schemaMarkup: schemaMarkup.data,
           summary: {
             overallScore: contentAnalysis.data?.seoScore || 0,
-            criticalIssues: (contentAnalysis.data?.suggestions || []).filter((s: any) => s.severity === 'critical').length,
+            criticalIssues: (contentAnalysis.data?.suggestions || []).filter((s: { severity: string }) => s.severity === 'critical').length,
             recommendations: keywordRecommendations.length,
             technicalIssues: technicalAudit?.data?.length || 0
           }

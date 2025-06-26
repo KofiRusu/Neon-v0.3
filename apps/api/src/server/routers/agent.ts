@@ -62,7 +62,7 @@ export const agentRouter = createTRPCRouter({
         data: {
           agent: input.agent,
           action: input.action,
-          metadata: (input.metadata || {}) as any,
+          metadata: input.metadata || {},
         },
       });
     }),
