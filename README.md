@@ -1,262 +1,189 @@
 <!-- AUTO-GENERATED DOCS: 2025-06-20T23:48:34.742Z -->
 
-# 🚀 NeonHub v0.3 - AI Marketing Automation Platform
+# 🚀 NeonHub Platform v2.2 - Final Production Release
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/KofiRusu/Neon-v0.3)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](https://github.com/KofiRusu/Neon-v2.2)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
 
-> **The most advanced AI-powered marketing automation platform built with modern web technologies**
+> **AI-powered marketing automation platform with comprehensive agent-based architecture**
 
-![NeonHub Dashboard](https://via.placeholder.com/800x400/1e293b/00d4aa?text=NeonHub+v0.3+Dashboard)
+## 🚀 Overview
 
----
+NeonHub v2.2 is the culmination of multiple development iterations, combining the best features from:
 
-## 🎯 **What is NeonHub?**
+- **Neon-v0.3**: Frontend + backend enhancements with comprehensive CI/CD
+- **Neon-v1.1**: Agent refactors and monorepo restructuring
+- **NeonHub-v0.1**: Initial backend scaffolds and Prisma models
+- **Neon-v2.1**: Pre-final beta integration with modern Turbo setup
 
-NeonHub v0.3 is a comprehensive marketing automation platform that leverages AI agents to handle every aspect of your marketing operations:
+This final release provides a production-ready, scalable platform for AI-driven marketing automation.
 
-- **🤖 9 Specialized AI Agents** for content, SEO, email, social media, and support
-- **📊 Real-time Analytics** with comprehensive performance tracking
-- **🔄 Automated Workflows** for campaign management and optimization
-- **🎨 Modern Dashboard** with intuitive agent management
-- **⚡ Production-Ready** architecture with enterprise-grade reliability
+## 📁 Repository Structure
 
----
-
-## ✨ **Key Features**
-
-### 🧠 **AI Agent Ecosystem**
-| Agent | Purpose | Status |
-|-------|---------|--------|
-| **ContentAgent** | Blog posts, social content, email copy | ✅ Production |
-| **SEOAgent** | Meta tags, keyword optimization, rankings | ✅ Production |
-| **EmailAgent** | Campaign automation, drip sequences | ✅ Production |
-| **SocialAgent** | Multi-platform posting, scheduling | ✅ Production |
-| **SupportAgent** | WhatsApp automation, ticket management | ✅ Production |
-| **CampaignAgent** | End-to-end campaign orchestration | ✅ Production |
-| **MetricsAgent** | Performance analytics, reporting | ✅ Production |
-| **UserAgent** | User management, authentication | ✅ Production |
-| **CoordinatorAgent** | Inter-agent communication | ✅ Production |
-
-### 🏗️ **Technical Architecture**
-- **Frontend**: Next.js 14 + React 18 + Tailwind CSS
-- **Backend**: tRPC + Next.js API routes + Prisma ORM
-- **Database**: PostgreSQL with 19+ optimized tables
-- **Type Safety**: End-to-end TypeScript with Zod validation
-- **State Management**: React Query + tRPC for seamless data flow
-
-### 📱 **Dashboard Features**
-- **Agent Management** - Monitor and control all AI agents
-- **Campaign Builder** - Visual campaign creation and management
-- **Analytics Hub** - Real-time performance metrics and insights
-- **Content Studio** - AI-powered content generation tools
-- **Communication Center** - Unified inbox for all channels
-
----
-
-## 🚀 **Quick Start**
-
-### Prerequisites
-```bash
-Node.js 18.17+ • PostgreSQL 15+ • Git
+```
+├── apps/
+│   ├── api/           # Backend API server
+│   └── dashboard/     # Frontend React dashboard
+├── packages/
+│   ├── api/           # API utilities and types
+│   ├── core-agents/   # AI agent implementations
+│   ├── database/      # Prisma database layer
+│   ├── data-model/    # Data models and schemas
+│   ├── mockdata/      # Mock data generators
+│   ├── reasoning-engine/ # AI reasoning logic
+│   ├── types/         # TypeScript type definitions
+│   ├── ui/            # Shared UI components
+│   └── utils/         # Utility functions
+├── .github/workflows/ # CI/CD pipelines
+├── scripts/           # Build and deployment scripts
+└── legacy-imports/    # Imported components from legacy repos
 ```
 
-### Installation
-```bash
-# 1. Clone the repository
-git clone https://github.com/KofiRusu/Neon-v0.3.git
-cd Neon-v0.3
+## �️ Quick Start
 
-# 2. Install dependencies
+### Prerequisites
+
+- Node.js 18+ 
+- npm 9+
+- PostgreSQL 14+
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/KofiRusu/Neon-v2.2.git
+cd Neon-v2.2
+
+# Install dependencies
 npm install
 
-# 3. Set up environment variables
-cp .env.example .env
-# Edit .env with your database URL and API keys
+# Set up environment variables
+cp env.example .env.local
 
-# 4. Initialize database
-npm run db:push
+# Generate Prisma client
 npm run db:generate
 
-# 5. Start development servers
+# Push database schema
+npm run db:push
+
+# Start development servers
 npm run dev
 ```
 
-### Access Points
-- **Dashboard**: http://localhost:3000
-- **API**: http://localhost:3001
-- **Health Check**: http://localhost:3001/api/health
-
----
-
-## 📁 **Project Structure**
-
-```
-neon-v0.3/
-├── 📱 apps/
-│   ├── api/              # Next.js API server
-│   │   ├── src/app/api/  # API routes
-│   │   └── src/server/   # tRPC routers
-│   └── dashboard/        # React dashboard
-│       ├── src/app/      # Next.js pages
-│       └── src/components/ # React components
-├── 📦 packages/
-│   ├── core-agents/      # AI agent implementations
-│   ├── data-model/       # Prisma schema & client
-│   ├── types/           # Shared TypeScript types
-│   ├── utils/           # Utility functions
-│   └── reasoning-engine/ # AI reasoning logic
-├── 🧪 tests/
-│   ├── e2e/             # End-to-end tests
-│   └── integration/     # Integration tests
-└── 📚 docs/             # Documentation
-```
-
----
-
-## 🛠️ **Development**
+## 🏗️ Development
 
 ### Available Scripts
+
 ```bash
-npm run dev          # Start development servers
-npm run build        # Build for production
-npm run start        # Start production servers
-npm run test         # Run all tests
-npm run test:e2e     # Run E2E tests
-npm run lint         # Lint all workspaces
-npm run type-check   # TypeScript type checking
-npm run db:studio    # Open Prisma Studio
+# Development
+npm run dev              # Start all development servers
+npm run build            # Build all packages and apps
+npm run start            # Start production servers
+
+# Testing
+npm run test             # Run all tests
+npm run test:ci          # Run CI tests
+npm run test:e2e         # Run end-to-end tests
+
+# Code Quality
+npm run lint             # Lint all code
+npm run typecheck        # Type check all TypeScript
+npm run format           # Format code with Prettier
+
+# Database
+npm run db:generate      # Generate Prisma client
+npm run db:push          # Push schema to database
+npm run db:studio        # Open Prisma Studio
 ```
 
-### Development Workflow
-1. **Backend Changes**: Edit files in `apps/api/src/`
-2. **Frontend Changes**: Edit files in `apps/dashboard/src/`
-3. **Agent Logic**: Modify `packages/core-agents/src/`
-4. **Database Schema**: Update `packages/data-model/prisma/schema.prisma`
+### Turbo Configuration
 
----
+This project uses [Turbo](https://turbo.build/) for efficient monorepo builds:
 
-## 🚀 **Deployment**
+- **Build Pipeline**: Optimized dependency-aware builds
+- **Caching**: Intelligent build caching for faster iterations
+- **Parallel Execution**: Concurrent task execution across packages
 
-### Option 1: Vercel (Recommended)
+## 🤖 AI Agents
+
+The platform includes several specialized AI agents:
+
+- **SEO Agent**: Content optimization and keyword analysis
+- **Email Marketing Agent**: Campaign automation and personalization
+- **Customer Support Agent**: Automated customer service
+- **Brand Voice Agent**: Consistent brand messaging
+- **Reasoning Engine**: Advanced decision-making logic
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
 ```bash
-npm install -g vercel
-vercel --prod
+# Deploy to Vercel
+npm run deploy:production
 ```
 
-### Option 2: Docker
+### Docker
+
 ```bash
-docker-compose up -d --build
+# Build Docker image
+docker build -t neonhub:v2.2 .
+
+# Run container
+docker run -p 3000:3000 -p 3001:3001 neonhub:v2.2
 ```
 
-### Option 3: Traditional Server
-```bash
-npm run build
-npm run start
-```
+## 🔧 CI/CD Pipeline
 
-### Environment Variables
-```bash
-# Required
-DATABASE_URL="postgresql://user:pass@host:5432/dbname"
-NEXT_PUBLIC_API_URL="https://your-api-domain.com/api/trpc"
+The repository includes comprehensive GitHub Actions workflows:
 
-# Optional
-OPENAI_API_KEY="your_openai_key"
-STRIPE_SECRET_KEY="your_stripe_key"
-```
+- **ci.yml**: Main CI pipeline with testing and building
+- **deploy.yml**: Automated deployment to production
+- **quality.yml**: Security scanning and code quality checks
+- **autonomous.yml**: Autonomous agent health monitoring
+- **enhanced-ci.yml**: Enhanced CI with advanced features
+- **agent-orchestrator.yml**: Agent deployment and orchestration
+- **nightly.yml**: Nightly automated testing
+- **weekly-audit.yml**: Weekly security and dependency audits
 
----
+## 📊 Monitoring & Analytics
 
-## 📊 **API Documentation**
+- **Health Checks**: Automated system health monitoring
+- **Performance Metrics**: Real-time performance tracking
+- **Error Tracking**: Comprehensive error logging and alerting
+- **Usage Analytics**: User behavior and system usage analytics
 
-### tRPC Routers
-- **`user.*`** - User management and authentication
-- **`campaign.*`** - Campaign CRUD operations
-- **`metrics.*`** - Analytics and performance data
-- **`agent.*`** - AI agent management
-- **`content.*`** - Content generation endpoints
-- **`seo.*`** - SEO optimization tools
-- **`email.*`** - Email marketing automation
-- **`social.*`** - Social media management
-- **`support.*`** - Customer support features
+## 🔒 Security
 
-### Example Usage
-```typescript
-// Frontend tRPC client usage
-const { data: campaigns } = trpc.campaign.getAll.useQuery();
-const createCampaign = trpc.campaign.create.useMutation();
+- **Snyk Security Scanning**: Automated vulnerability detection
+- **NPM Audit**: Dependency security checks
+- **Environment Variables**: Secure configuration management
+- **Access Control**: Role-based permissions system
 
-// Create new campaign
-await createCampaign.mutateAsync({
-  name: "Summer 2024 Campaign",
-  type: "SOCIAL_MEDIA",
-  budget: 5000
-});
-```
+## 🤝 Contributing
 
----
-
-## 🧪 **Testing**
-
-### Test Coverage
-- **Unit Tests**: Individual component and function testing
-- **Integration Tests**: API endpoint and database testing
-- **E2E Tests**: Full user workflow testing with Playwright
-
-### Running Tests
-```bash
-npm run test              # All tests
-npm run test:e2e          # End-to-end tests only
-npm run test --workspace=apps/api  # API tests only
-```
-
----
-
-## 🤝 **Contributing**
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
----
-
-## 📄 **License**
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## 🙏 Acknowledgments
 
-## 🆘 **Support**
+- Built upon the foundation of multiple development iterations
+- Incorporates best practices from the NeonHub development community
+- Powered by modern web technologies and AI frameworks
 
-- **Documentation**: [Full docs](./docs/)
-- **Issues**: [GitHub Issues](https://github.com/KofiRusu/Neon-v0.3/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/KofiRusu/Neon-v0.3/discussions)
+## 📞 Support
 
----
-
-## 🙏 **Acknowledgments**
-
-Built with amazing open-source technologies:
-- [Next.js](https://nextjs.org/) - The React Framework
-- [tRPC](https://trpc.io/) - End-to-end typesafe APIs
-- [Prisma](https://prisma.io/) - Next-generation ORM
-- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS
-- [TypeScript](https://www.typescriptlang.org/) - JavaScript with types
+For support, email support@neonhub.ai or join our Discord community.
 
 ---
 
-<div align="center">
-
-**⭐ Star this repo if you find it helpful!**
-
-[Live Demo](https://neonhub-v3-demo.vercel.app) • [Documentation](./docs/) • [Contributing](CONTRIBUTING.md)
-
-</div>
+**NeonHub v2.2** - The future of AI-powered marketing automation is here! 🚀
